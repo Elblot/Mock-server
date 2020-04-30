@@ -99,6 +99,7 @@ public class WebService extends HttpServlet {
 	private void buildInputRequestHandler() {
 		for (RequestT t:dot.getInputRequests()) {
 			app.get(t.getUri(), ctx -> {
+				System.out.println("pass??");
 				long now = System.currentTimeMillis();//TODO make for the post to
 				if (t.getSources(dot).contains(pos)) {
 					System.out.println("pass");
