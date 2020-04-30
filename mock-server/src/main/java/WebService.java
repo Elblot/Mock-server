@@ -40,7 +40,7 @@ public class WebService extends HttpServlet {
 	public WebService() {
 
 		app = Javalin.createStandalone(config -> {
-			config.requestLogger((ctx, executionTimeMs) -> LoggerFactory.getLogger("MOCK").info(String.format("%s on %s -> %d", ctx.method(), ctx.path(), ctx.res.getStatus())));
+			config.requestLogger((ctx, executionTimeMs) -> LoggerFactory.getLogger("MOCK").info(String.format("%s on %s -> %d", ctx.method(), ctx.url(), ctx.res.getStatus())));
 		});
 		app.exception(LoaderException.class, ExceptionHandlers.genericHandler(400));
 		app.exception(RuleAlreadyExistsException.class, ExceptionHandlers.genericHandler(400));
