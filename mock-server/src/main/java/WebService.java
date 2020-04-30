@@ -151,6 +151,7 @@ public class WebService extends HttpServlet {
 				throw new LoaderException("Wrong content type, \"text/plain\" was expected");
 			}
 			dot = loader.load(ctx.body());
+			buildInputRequestHandler();
 			lastAction = 0;
 			for (int i = 0 ; i < 10; i++) { //nb session run by the mock
 				pos = dot.getInitialState();
