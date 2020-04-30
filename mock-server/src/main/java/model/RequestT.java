@@ -1,6 +1,10 @@
 package model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class RequestT extends Transition {
 
@@ -90,4 +94,19 @@ public class RequestT extends Transition {
 	public void setResponse(ResponseT r) {
 		resp = r;
 	}
+
+	public Set<State> getSources(LTS dot) {
+		Set<State> res = new HashSet<State>();
+		for (Transition t : dot.getTransitions()) {
+			if (this.samePath(t)) {
+				res.add(t.getSource());
+			}
+		}
+		return res;
+	}
+
+	private boolean samePath(Transition t) {
+		return (t instanceof RequestT && getUri().equals(((RequestT) t).getUri()));
+	}
+
 }

@@ -96,6 +96,47 @@ public class WebService extends HttpServlet {
 		};
 	}*/
 
+	private void buildInputRequestHandler() {
+		for (RequestT t:dot.getInputRequests()) {
+			app.get(t.getUri(), ctx -> {
+				long now = System.currentTimeMillis();//TODO make for the post to
+				if (t.getSources(dot).contains(pos)) {
+					if (t.getDelay() == 0 || lastAction != 0 || t.getDelay() > now - lastAction) {
+						pos = t.getTarget(); //TODO take the one with weight min
+						lastAction = now;
+						while (runMock() == true);
+						ResponseT resp = t.getResponse();
+						lastAction = System.currentTimeMillis();
+						//ctx.result("Mock: It works !");
+						ctx.result(resp.getBody());
+						if (resp.getContent() != null) {
+							ctx.contentType(resp.getContent());
+						}
+						for (String h: resp.getHeaders().keySet()) {
+							ctx.header(h, resp.getHeaders().get(h));
+						}
+						if (pos.equals(resp.getSource())) {
+							pos = resp.getTarget();
+						}
+						else {
+							System.err.println("error: response " + resp.toString() + "launched from state " + pos.toString());
+						}
+					}
+
+					else {
+						ctx.result("request received too late.");
+						System.err.println("request received to late.");
+					}
+				}
+				else {
+					ctx.result("request received at the wrong position in the model.");
+					System.err.println("not now, i'm busy.");
+				}
+			});
+		}
+	}
+
+
 	/**
 	 * This method is called when the user does a HTTP POST request to the rules
 	 * path of the mock IP address. It loads the rules given with the JSON or YAML loader.
@@ -131,34 +172,7 @@ public class WebService extends HttpServlet {
 		for (RequestT t: input) {
 			State save = new State(pos);
 			System.out.println(t.getUri());
-			app.get(t.getUri(), ctx -> {
-				long now = System.currentTimeMillis();//TODO make for the post to
-				if (t.getDelay() == 0 || lastAction != 0 || t.getDelay() > now - lastAction) {
-					pos = t.getTarget(); //TODO take the one with weight min
-					lastAction = now;
-					while (runMock() == true);
-					ResponseT resp = t.getResponse();
-					lastAction = System.currentTimeMillis();
-					//ctx.result("Mock: It works !");
-					ctx.result(resp.getBody());
-					if (resp.getContent() != null) {
-						ctx.contentType(resp.getContent());
-					}
-					for (String h: resp.getHeaders().keySet()) {
-						ctx.header(h, resp.getHeaders().get(h));
-					}
-					if (pos.equals(resp.getSource())) {
-						pos = resp.getTarget();
-					}
-					else {
-						System.err.println("error: response " + resp.toString() + "launched from state " + pos.toString());
-					}
-				}
-				else {
-					ctx.result("request received too late.");
-					System.err.println("request received to late.");
-				}
-			});
+
 			if (!save.equals(pos)) {
 				break;
 			}

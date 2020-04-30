@@ -99,6 +99,16 @@ public class LTS {
 		return lts;		
 	}
 	
+	public Set<RequestT> getInputRequests(){
+		Set<RequestT> reqs = new HashSet<RequestT>();
+		for (Transition t: transitions.values()) {
+			if (t.isInput() && t instanceof RequestT){
+				reqs.add((RequestT) t);
+			}
+		}
+		return reqs;
+	}
+	
 	/* associate all the response with their associated requests */
 	public void buildResp() {
 		for (ResponseT resp : getResponses()) {
