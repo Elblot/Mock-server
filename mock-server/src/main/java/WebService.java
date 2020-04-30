@@ -101,7 +101,9 @@ public class WebService extends HttpServlet {
 			app.get(t.getUri(), ctx -> {
 				long now = System.currentTimeMillis();//TODO make for the post to
 				if (t.getSources(dot).contains(pos)) {
-					if (t.getDelay() == 0 || lastAction != 0 || t.getDelay() > now - lastAction) {
+					System.out.println("pass");
+					if (t.getDelay() == 0 || lastAction != 0 || t.getDelay() < now - lastAction) {
+						System.out.println("pass too");
 						pos = t.getTarget(); //TODO take the one with weight min
 						lastAction = now;
 						while (runMock() == true);
@@ -109,6 +111,7 @@ public class WebService extends HttpServlet {
 						lastAction = System.currentTimeMillis();
 						//ctx.result("Mock: It works !");
 						ctx.result(resp.getBody());
+						ctx.status(resp.getStatus());
 						if (resp.getContent() != null) {
 							ctx.contentType(resp.getContent());
 						}
