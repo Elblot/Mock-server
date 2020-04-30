@@ -45,7 +45,9 @@ public class OutputRequest extends Thread {
 			requestAsync(builder.build());
 
 			try {
-				Thread.sleep(req.getDelay());//getInterval()); TODO define interval between repetition
+				if( req.getDelay() > 0) {
+					Thread.sleep(req.getDelay());//getInterval()); TODO define interval between repetition
+				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

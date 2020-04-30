@@ -130,8 +130,9 @@ public class WebService extends HttpServlet {
 		Set<RequestT> input = pos.getFutureInReq();
 		for (RequestT t: input) {
 			State save = new State(pos);
+			System.out.println(t.getUri());
 			app.get(t.getUri(), ctx -> {
-				long now = System.currentTimeMillis();
+				long now = System.currentTimeMillis();//TODO make for the post to
 				if (t.getDelay() == 0 || lastAction != 0 || t.getDelay() > now - lastAction) {
 					pos = t.getTarget(); //TODO take the one with weight min
 					lastAction = now;
