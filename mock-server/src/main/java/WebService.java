@@ -100,11 +100,14 @@ public class WebService extends HttpServlet {
 		for (RequestT t:dot.getInputRequests()) {
 			app.get(t.getUri(), ctx -> {
 				System.out.println("pass??");
+				LoggerFactory.getLogger("MOCK").info(String.format("pass??"));
 				long now = System.currentTimeMillis();//TODO make for the post to
 				if (t.getSources(dot).contains(pos)) {
 					System.out.println("pass");
+					LoggerFactory.getLogger("MOCK").info(String.format("pass"));
 					if (t.getDelay() == 0 || lastAction != 0 || t.getDelay() < now - lastAction) {
 						System.out.println("pass too");
+						LoggerFactory.getLogger("MOCK").info(String.format("pass too"));
 						pos = t.getTarget(); //TODO take the one with weight min
 						lastAction = now;
 						while (runMock() == true);
