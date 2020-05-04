@@ -102,6 +102,7 @@ public class WebService extends HttpServlet {
 				RequestT t = dot.getReq(ctx.fullUrl(), pos);
 				//LoggerFactory.getLogger("MOCK").info(String.format("request checked"));
 				long now = System.currentTimeMillis();//TODO make for the post to
+				System.out.println("req reçu");
 				if (t !=  null) {
 					//LoggerFactory.getLogger("MOCK").info(String.format("right place"));
 					if (t.getDelay() == 0 || lastAction != 0 || t.getDelay() < now - lastAction) {
