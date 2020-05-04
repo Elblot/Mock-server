@@ -99,14 +99,26 @@ public class LTS {
 		return lts;		
 	}
 	
-	public Set<RequestT> getInputRequests(){
-		Set<RequestT> reqs = new HashSet<RequestT>();
+	public Set<String> getInputRequests(){
+		Set<String> reqs = new HashSet<String>();
 		for (Transition t: transitions.values()) {
 			if (t.isInput() && t instanceof RequestT){
-				reqs.add((RequestT) t);
+				reqs.add(((RequestT) t).getPathReq());
 			}
 		}
 		return reqs;
+	}
+	
+	
+	public RequestT getReq(String url, State pos) {
+		RequestT res = null;
+		int w = -1;
+		for (RequestT t : pos.getFutureInReq()) {
+			if (t.getPath().equals(url) && (t.getWeight() < w | w == -1)) {
+				res = t;
+			}
+		}
+		return res;
 	}
 	
 	/* associate all the response with their associated requests */

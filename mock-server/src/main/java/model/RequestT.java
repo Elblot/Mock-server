@@ -84,6 +84,20 @@ public class RequestT extends Transition {
 		String res = "http://";
 		res = res + to + ":8080";
 		res = res + Uri;
+		//System.out.println(res);
+		return res;
+	}
+
+	public String getPathReq() {
+		String res = "http://";
+		res = res + to + ":8080";
+		if (Uri.contains("?")) {
+			res = res + Uri.substring(0,Uri.indexOf("?"));
+		}
+		else {
+			res = res + Uri;
+		}
+		//System.out.println(res);
 		return res;
 	}
 	

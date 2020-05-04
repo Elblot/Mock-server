@@ -97,12 +97,14 @@ public class WebService extends HttpServlet {
 	}*/
 
 	private void buildInputRequestHandler() {
-		for (RequestT t:dot.getInputRequests()) {
-			app.get(t.getUri(), ctx -> {
+		for (String path: dot.getInputRequests()) {
+			app.get(path, ctx -> {
 				System.out.println("pass??");
+				RequestT t = dot.getReq(ctx.url(), pos);
+				//ctx.url();
 				LoggerFactory.getLogger("MOCK").info(String.format("pass??"));
 				long now = System.currentTimeMillis();//TODO make for the post to
-				if (t.getSources(dot).contains(pos)) {
+				if (t !=  null) {
 					System.out.println("pass");
 					LoggerFactory.getLogger("MOCK").info(String.format("pass"));
 					if (t.getDelay() == 0 || lastAction != 0 || t.getDelay() < now - lastAction) {
@@ -132,11 +134,13 @@ public class WebService extends HttpServlet {
 
 					else {
 						ctx.result("request received too late.");
-						System.err.println("request received to late.");
+						ctx.status(400);
+						System.err.println("request received too late.");
 					}
 				}
 				else {
 					ctx.result("request received at the wrong position in the model.");
+					ctx.status(400);
 					System.err.println("not now, i'm busy.");
 				}
 			});
