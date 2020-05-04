@@ -108,7 +108,9 @@ public class WebService extends HttpServlet {
 						//LoggerFactory.getLogger("MOCK").info(String.format("good delay"));
 						pos = t.getTarget(); //TODO take the one with weight min
 						lastAction = now;
+						System.out.println("req imbr: ");
 						while (runMock() == true);
+						
 						ResponseT resp = t.getResponse();
 						System.out.println(resp + "\n body : " + resp.getBody());
 						lastAction = System.currentTimeMillis();
@@ -134,7 +136,7 @@ public class WebService extends HttpServlet {
 
 					else {
 						ctx.result("request received too late.");
-						ctx.status(500);
+						ctx.status(501);
 						System.err.println("request received too late.");
 					}
 				}
