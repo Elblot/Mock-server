@@ -122,6 +122,9 @@ public class WebService extends HttpServlet {
 						}
 						if (pos.equals(resp.getSource())) {
 							pos = resp.getTarget();
+							if (pos.isFinal()) {
+								pos = dot.getInitialState();
+							}
 						}
 						else {
 							System.err.println("error: response " + resp.toString() + "launched from state " + pos.toString());
@@ -161,11 +164,12 @@ public class WebService extends HttpServlet {
 			pos = dot.getInitialState();
 			buildInputRequestHandler();
 			lastAction = 0;
+			ctx.status(204);
 			for (int i = 0 ; i < 10; i++) { //nb session run by the mock
+			//while(true) {
 				pos = dot.getInitialState();
 				runMock();
 			}
-			ctx.status(204);
 		};
 	}
 
