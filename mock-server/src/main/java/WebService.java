@@ -99,7 +99,7 @@ public class WebService extends HttpServlet {
 	private void buildInputRequestHandler() {
 		for (String path: dot.getInputRequests()) {
 			app.get(path, ctx -> {
-				RequestT t = dot.getReq(ctx.body(), pos);
+				RequestT t = dot.getReq(ctx.fullUrl(), pos);
 				LoggerFactory.getLogger("MOCK").info(String.format("request checked"));
 				long now = System.currentTimeMillis();//TODO make for the post to
 				if (t !=  null) {
