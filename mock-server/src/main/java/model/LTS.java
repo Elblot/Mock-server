@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.slf4j.LoggerFactory;
 
 import model.State;
 import model.Transition;
@@ -114,8 +115,10 @@ public class LTS {
 		RequestT res = null;
 		int w = -1;
 		for (RequestT t : pos.getFutureInReq()) {
-			System.out.println("url : " + url);
-			System.out.println("getpath : " + t.getPath());
+			LoggerFactory.getLogger("MOCK").info(String.format("url : " + url));
+			LoggerFactory.getLogger("MOCK").info(String.format("getpath : " + t.getPath()));
+			//System.out.println("url : " + url);
+			//System.out.println("getpath : " + t.getPath());
 			if (t.getPath().equals(url) && (t.getWeight() < w | w == -1)) {
 				res = t;
 			}
