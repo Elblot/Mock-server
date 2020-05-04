@@ -100,12 +100,12 @@ public class WebService extends HttpServlet {
 		for (String path: dot.getInputRequests()) {
 			app.get(path, ctx -> {
 				RequestT t = dot.getReq(ctx.fullUrl(), pos);
-				LoggerFactory.getLogger("MOCK").info(String.format("request checked"));
+				//LoggerFactory.getLogger("MOCK").info(String.format("request checked"));
 				long now = System.currentTimeMillis();//TODO make for the post to
 				if (t !=  null) {
-					LoggerFactory.getLogger("MOCK").info(String.format("right place"));
+					//LoggerFactory.getLogger("MOCK").info(String.format("right place"));
 					if (t.getDelay() == 0 || lastAction != 0 || t.getDelay() < now - lastAction) {
-						LoggerFactory.getLogger("MOCK").info(String.format("good delay"));
+						//LoggerFactory.getLogger("MOCK").info(String.format("good delay"));
 						pos = t.getTarget(); //TODO take the one with weight min
 						lastAction = now;
 						while (runMock() == true);
@@ -167,8 +167,9 @@ public class WebService extends HttpServlet {
 			ctx.status(204);
 			for (int i = 0 ; i < 10; i++) { //nb session run by the mock
 			//while(true) {
-				pos = dot.getInitialState();
+				
 				runMock();
+				pos = dot.getInitialState();
 			}
 		};
 	}

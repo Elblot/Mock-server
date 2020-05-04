@@ -115,8 +115,8 @@ public class LTS {
 		RequestT res = null;
 		int w = -1;
 		for (RequestT t : pos.getFutureInReq()) {
-			LoggerFactory.getLogger("MOCK").info(String.format("url : " + url));
-			LoggerFactory.getLogger("MOCK").info(String.format("getpath : " + t.getPath()));
+			//LoggerFactory.getLogger("MOCK").info(String.format("url : " + url));
+			//LoggerFactory.getLogger("MOCK").info(String.format("getpath : " + t.getPath()));
 			//System.out.println("url : " + url);
 			//System.out.println("getpath : " + t.getPath());
 			if (t.getPath().equals(url) && (t.getWeight() < w | w == -1)) {
