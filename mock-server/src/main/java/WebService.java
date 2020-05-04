@@ -100,6 +100,7 @@ public class WebService extends HttpServlet {
 		for (String path: dot.getInputRequests()) {
 			app.get(path, ctx -> {
 				System.out.println("pass??");
+				LoggerFactory.getLogger("MOCK").info(String.format("Request: checked"));
 				RequestT t = dot.getReq(ctx.url(), pos);
 				//ctx.url();
 				LoggerFactory.getLogger("MOCK").info(String.format("pass??"));
