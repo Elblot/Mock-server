@@ -99,18 +99,13 @@ public class WebService extends HttpServlet {
 	private void buildInputRequestHandler() {
 		for (String path: dot.getInputRequests()) {
 			app.get(path, ctx -> {
-				System.out.println("pass??");
-				//LoggerFactory.getLogger("MOCK").info(String.format("Request: checked"));
 				RequestT t = dot.getReq(ctx.url(), pos);
-				//ctx.url();
-				LoggerFactory.getLogger("MOCK").info(String.format("pass??"));
+				LoggerFactory.getLogger("MOCK").info(String.format("request checked"));
 				long now = System.currentTimeMillis();//TODO make for the post to
 				if (t !=  null) {
-					System.out.println("pass");
-					LoggerFactory.getLogger("MOCK").info(String.format("pass"));
+					LoggerFactory.getLogger("MOCK").info(String.format("right place"));
 					if (t.getDelay() == 0 || lastAction != 0 || t.getDelay() < now - lastAction) {
-						System.out.println("pass too");
-						LoggerFactory.getLogger("MOCK").info(String.format("pass too"));
+						LoggerFactory.getLogger("MOCK").info(String.format("good delay"));
 						pos = t.getTarget(); //TODO take the one with weight min
 						lastAction = now;
 						while (runMock() == true);
@@ -135,7 +130,7 @@ public class WebService extends HttpServlet {
 
 					else {
 						ctx.result("request received too late.");
-						ctx.status(400);
+						ctx.status(500);
 						System.err.println("request received too late.");
 					}
 				}
@@ -163,6 +158,7 @@ public class WebService extends HttpServlet {
 				throw new LoaderException("Wrong content type, \"text/plain\" was expected");
 			}
 			dot = loader.load(ctx.body());
+			pos = dot.getInitialState();
 			buildInputRequestHandler();
 			lastAction = 0;
 			for (int i = 0 ; i < 10; i++) { //nb session run by the mock
