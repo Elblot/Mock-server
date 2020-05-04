@@ -114,6 +114,8 @@ public class LTS {
 		RequestT res = null;
 		int w = -1;
 		for (RequestT t : pos.getFutureInReq()) {
+			System.out.println("url : " + url);
+			System.out.println("getpath : " + t.getPath());
 			if (t.getPath().equals(url) && (t.getWeight() < w | w == -1)) {
 				res = t;
 			}
