@@ -67,7 +67,7 @@ public class OutputRequest extends Thread {
 		new Thread(() -> {
 			try (Response res = client.newCall(request).execute()) {
 				String result = "no response found in the model";
-				System.out.println(request.toString());
+				//System.out.println(request.toString());
 				if(req.getResponse() != null) {
 					match = true;
 					/*System.out.println("status rule: " + req.getResponse().getStatus());
