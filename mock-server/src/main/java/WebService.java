@@ -113,6 +113,10 @@ public class WebService extends HttpServlet {
 						while (runMock() == true);
 						
 						ResponseT resp = t.getResponse();
+						if (resp == null) {
+							System.out.println(t + " has no response");
+						}
+						System.out.println(resp);
 						System.out.println(resp + "\n body : " + resp.getBody());
 						lastAction = System.currentTimeMillis();
 						//ctx.result("Mock: It works !");

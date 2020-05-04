@@ -143,6 +143,9 @@ public abstract class Transition {
 				set.addAll(t.getLastRequests(resp));
 			}
 		}
+		if (set.isEmpty()) {
+			System.err.println("error: no req found for " + resp );
+		}
 		return set;
 	}
 
