@@ -129,8 +129,19 @@ public class LTS {
 	/* associate all the response with their associated requests */
 	public void buildResp() {
 		for (ResponseT resp : getResponses()) {
+			//System.out.println(resp + "is a response");
 			for (RequestT req : resp.getLastRequests()) {
 				req.setResponse(resp);
+			}
+		}
+	}
+	
+	public void printReq() {
+		for (Transition t : getTransitions()) {
+			if (t instanceof RequestT) {
+				System.out.println(t + "\n"
+						+ "from:" + t.getFrom() + ", to:" + t.getTo()
+						+ " resp : " + ((RequestT) t).getResponse());
 			}
 		}
 	}

@@ -102,22 +102,22 @@ public class WebService extends HttpServlet {
 				RequestT t = dot.getReq(ctx.fullUrl(), pos);
 				//LoggerFactory.getLogger("MOCK").info(String.format("request checked"));
 				long now = System.currentTimeMillis();//TODO make for the post to
-				System.out.println("req reçu");
+				//System.out.println("req reçu");
 				if (t !=  null) {
 					//LoggerFactory.getLogger("MOCK").info(String.format("right place"));
 					if (t.getDelay() == 0 || lastAction != 0 || t.getDelay() < now - lastAction) {
 						//LoggerFactory.getLogger("MOCK").info(String.format("good delay"));
 						pos = t.getTarget(); //TODO take the one with weight min
 						lastAction = now;
-						System.out.println("req imbr: ");
+						//System.out.println("req imbr: ");
 						while (runMock() == true);
 						
 						ResponseT resp = t.getResponse();
-						if (resp == null) {
+						/*if (resp == null) {
 							System.out.println(t + " has no response");
-						}
-						System.out.println(resp);
-						System.out.println(resp + "\n body : " + resp.getBody());
+						}*/
+						//System.out.println(resp);
+						//System.out.println(resp + "\n body : " + resp.getBody());
 						lastAction = System.currentTimeMillis();
 						//ctx.result("Mock: It works !");
 						ctx.result(resp.getBody());
@@ -193,7 +193,7 @@ public class WebService extends HttpServlet {
 		Set<RequestT> input = pos.getFutureInReq();
 		for (RequestT t: input) {
 			State save = new State(pos);
-			System.out.println(t.getUri());
+			//System.out.println(t.getUri());
 
 			if (!save.equals(pos)) {
 				break;

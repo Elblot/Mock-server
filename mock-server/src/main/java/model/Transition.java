@@ -39,6 +39,7 @@ public abstract class Transition {
 	}
 	
 	public String getFrom() {
+		//System.out.println(from);
 		return from;
 	}
 	
@@ -47,6 +48,7 @@ public abstract class Transition {
 	}
 	
 	public String getTo() {
+		//System.out.println(to);
 		return to;
 	}
 	
@@ -132,7 +134,8 @@ public abstract class Transition {
 	public Set<RequestT> getLastRequests(ResponseT resp){
 		Set<RequestT> set = new HashSet<RequestT>();
 		for (Transition t : source.getPredecesseurs()) {
-			if (t instanceof RequestT && t.getFrom().equals(getTo()) && t.getTo().equals(getFrom())){
+			if (t instanceof RequestT && t.getFrom().equals(resp.getTo()) && t.getTo().equals(resp.getFrom())){
+				//System.out.println(t);
 				set.add((RequestT) t); 
 			}
 			else if (t == this) {
