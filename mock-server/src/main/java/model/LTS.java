@@ -121,6 +121,7 @@ public class LTS {
 			//System.out.println("getpath : " + t.getPath());
 			if (t.getPath().equals(url) && (t.getWeight() < w | w == -1)) {
 				res = t;
+				w = t.getWeight();
 			}
 		}
 		return res;

@@ -173,8 +173,8 @@ public class WebService extends HttpServlet {
 			buildInputRequestHandler();
 			lastAction = 0;
 			ctx.status(204);
-			for (int i = 0 ; i < 10; i++) { //nb session run by the mock
-			//while(true) {
+			//for (int i = 0 ; i < 10; i++) { //nb session run by the mock
+			while(true) {
 				while (runMock() == true);
 				pos = dot.getInitialState();
 			}
@@ -184,7 +184,7 @@ public class WebService extends HttpServlet {
 	/** TODO use the weight, the delay, and the repetition **/
 	private boolean runMock() {
 		boolean act = false;
-		System.out.println("resp in :" + pos.getInResp());
+		//System.out.println("resp in :" + pos.getInResp());
 		if (!pos.isInit() && pos.getInResp() != null) {
 			long now = System.currentTimeMillis();
 			pos = pos.getInResp().getTarget();
