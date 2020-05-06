@@ -152,7 +152,7 @@ public class State {
 		ResponseT res = null;
 		int weight = -1;
 		for (Transition t: getSuccesseurs()) {
-			if (t instanceof ResponseT && weight == -1 && weight > t.getWeight()) {
+			if (t instanceof ResponseT && (weight == -1 || weight > t.getWeight())) {
 				res = (ResponseT) t;
 			}
 		}
@@ -161,5 +161,15 @@ public class State {
 	
 	public boolean equals(State s) {
 		return label.equals(s.getLabel()); //each state have a different label
+	}
+
+	public long getMaxDelay() {
+		long d = -1;
+		for (RequestT t : getFutureInReq()) {
+			if (t.getDelay() > d) {
+				d = t.getDelay();
+			}
+		}
+		return d;
 	}
 }
