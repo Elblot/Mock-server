@@ -125,6 +125,16 @@ public class State {
 		return res;
 	}
 	
+	public Set<ResponseT> getFutureOutResp() {
+		Set<ResponseT> res = new HashSet<ResponseT>();
+		for (Transition succ : getSuccesseurs()) {
+			if (succ.isOutput() && succ instanceof ResponseT) {
+				res.add((ResponseT) succ);
+			}
+		}
+		return res;
+	}
+	
 	public Set<RequestT> getFutureOutReq() {
 		Set<RequestT> res = new HashSet<RequestT>();
 		for (Transition succ : getSuccesseurs()) {
@@ -166,6 +176,17 @@ public class State {
 	public long getMaxDelay() {
 		long d = -1;
 		for (RequestT t : getFutureInReq()) {
+			//System.out.println(t);
+			if (t.getDelay() > d) {
+				d = t.getDelay();
+			}
+		}
+		return d;
+	}
+
+	public long plannedResponse() {
+		long d = -1;
+		for (ResponseT t : getFutureOutResp()) {
 			if (t.getDelay() > d) {
 				d = t.getDelay();
 			}

@@ -51,7 +51,7 @@ public class ResponseT extends Transition {
 			delay = Long.parseLong(w);
 		}
 		else {
-			delay = -1;
+			delay = 0;
 		}	
 		headers = new HashMap<String,String>();
 		String[] e = trans.substring(trans.indexOf("("), trans.length() - 1).split(separator);
