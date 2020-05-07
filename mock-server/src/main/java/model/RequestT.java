@@ -38,12 +38,12 @@ public class RequestT extends Transition {
 		else {
 			repetition = 1;			
 		}
-		if (trans.contains("delay=")) {
-			String body = trans.substring(trans.indexOf("delay=")+6);
+		if (trans.contains("body=")) {
+			String body = trans.substring(trans.indexOf("body=")+5);
 			body = body.substring(0,body.indexOf(separator));
 		}
-		if (trans.contains("body=")) {
-			String w = trans.substring(trans.indexOf("body=")+5);
+		if (trans.contains("delay=")) {
+			String w = trans.substring(trans.indexOf("delay=")+6);
 			w = w.substring(0,w.indexOf(separator));
 			delay = Long.parseLong(w);
 		}
