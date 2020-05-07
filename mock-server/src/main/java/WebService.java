@@ -203,8 +203,10 @@ public class WebService extends HttpServlet {
 				//LoggerFactory.getLogger("MOCK").info(String.format("stop waiting"));
 				while (runMock(false) == true);
 				//LoggerFactory.getLogger("MOCK").info(String.format("init"));
-				pos = dot.getInitialState();
-				this.notify();
+				synchronized(this){
+					pos = dot.getInitialState();
+					this.notify();
+				}
 			}
 		};
 	}
