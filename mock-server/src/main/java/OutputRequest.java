@@ -23,16 +23,23 @@ public class OutputRequest extends Thread {
 
 	@Override
 	public void run() {
-		try {
+		/*try {
 			if( req.getDelay() > 0) {
 				Thread.sleep((long) req.getDelay());
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-		}
+		}*/
 		int i = 0;
 		boolean infinite = (req.getRepetition() == 0);
 		while ((i < req.getRepetition() || infinite)) {
+			if( req.getDelay() > 0 & i != 0) {
+				try {
+					Thread.sleep(req.getDelay());
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}			
 			Request.Builder builder = new Request.Builder()
 					.url(req.getPath());
 			if(req.getVerb().equals("GET")) {
@@ -41,16 +48,7 @@ public class OutputRequest extends Thread {
 				builder.method(req.getVerb(), RequestBody.create(req.getBody(), null));
 			}
 			req.getHeaders().forEach(builder::addHeader);
-
 			requestAsync(builder.build());
-
-			try {
-				if( req.getDelay() > 0) {
-					Thread.sleep(req.getDelay());//getInterval()); TODO define interval between repetition
-				}
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
 			i++;
 		}
 	}
@@ -66,6 +64,7 @@ public class OutputRequest extends Thread {
 	private void requestAsync(Request request) {
 		new Thread(() -> {
 			try (Response res = client.newCall(request).execute()) {
+				//LoggerFactory.getLogger("MOCK").info(String.format("req sent"));
 				String result = "no response found in the model";
 				//System.out.println(request.toString());
 				if(req.getResponse() != null) {
