@@ -6,6 +6,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.LoggerFactory;
+
 import model.Transition;
 
 public class State {
@@ -147,10 +149,11 @@ public class State {
 	
 	/* return the next output with weight min */
 	public RequestT getOutReq(long lastAction) {
+		//LoggerFactory.getLogger("MOCK").info(String.format(this.toString()));
 		RequestT res = null;
 		int weight = -1;
 		for (Transition succ : getSuccesseurs()) {
-			if (succ.isOutput() && succ instanceof RequestT && (weight < 0 | succ.getWeight() < weight) && (System.currentTimeMillis() - lastAction) > succ.getDelay()) {
+			if (succ.isOutput() && succ instanceof RequestT && (weight < 0 | succ.getWeight() < weight) && ((System.currentTimeMillis() - lastAction) >= succ.getDelay())) {
 				res = (RequestT) succ;
 				weight = res.getWeight();
 			}

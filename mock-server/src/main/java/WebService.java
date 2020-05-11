@@ -204,7 +204,7 @@ public class WebService extends HttpServlet {
 				}
 				//LoggerFactory.getLogger("MOCK").info(String.format("stop waiting"));
 				while (runMock(false) == true);
-				//LoggerFactory.getLogger("MOCK").info(String.format("init"));
+				LoggerFactory.getLogger("MOCK").info(String.format("init"));
 				synchronized(this){
 					pos = dot.getInitialState();
 					this.notify();
@@ -216,26 +216,25 @@ public class WebService extends HttpServlet {
 	/** TODO use the weight, the delay, and the repetition 
 	 * @throws InterruptedException **/
 	private boolean runMock(boolean passOutResp) throws InterruptedException {
-		boolean act = false;
+		LoggerFactory.getLogger("MOCK").info(String.format("pos :" + pos.toString()));
 		if (!pos.isInit() && pos.getInResp() != null) {
+			LoggerFactory.getLogger("MOCK").info(String.format("inresp"));
 			long now = System.currentTimeMillis();
 			pos = pos.getInResp().getTarget();
 			lastAction = now;
-			act = true;
+			return true;
 		}
 		if (pos.getMaxDelay() > System.currentTimeMillis() - lastAction || pos.getMaxDelay() == 0) {
 			Thread.sleep(50);
-			act = true;
+			return true;
 		}
 		if (!passOutResp && (pos.plannedResponse() > System.currentTimeMillis() - lastAction || pos.plannedResponse() == 0)) {
-			//LoggerFactory.getLogger("MOCK").info(String.format("planned resp"));
 			Thread.sleep(50);
-			act = true;
+			return true;
 		}
 		RequestT output = pos.getOutReq(lastAction);
 		if (output != null) {
 			output.incWeight();
-			act = true;
 			OutputRequest send = new OutputRequest(output);
 			lastAction = System.currentTimeMillis();;
 			send.run();
@@ -243,8 +242,9 @@ public class WebService extends HttpServlet {
 			if (!send.getMatch()) {
 				//TODO error
 			}
+			return true;
 		}
-		return act;
+		return false;
 	}
 
 
