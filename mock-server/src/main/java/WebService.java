@@ -116,13 +116,13 @@ public class WebService extends HttpServlet {
 								if (pos.isFinal()) {
 									//LoggerFactory.getLogger("MOCK").info(String.format("init"));
 									pos = dot.getInitialState();
-									this.notify();
 								}
 							}
 							else {
 								ctx.status(502);
 								System.err.println("error: response " + resp.toString() + "launched from state " + pos.toString());
 							}
+							this.notify();
 						}
 						else {
 							ctx.result("request received too late.");
@@ -153,14 +153,14 @@ public class WebService extends HttpServlet {
 								pos = resp.getTarget();
 								if (pos.isFinal()) {
 									//LoggerFactory.getLogger("MOCK").info(String.format("init"));
-									pos = dot.getInitialState();
-									this.notify();									
+									pos = dot.getInitialState();												
 								}
 							}
 							else {
 								ctx.status(502);
 								System.err.println("error: response " + resp.toString() + "launched from state " + pos.toString());
 							}
+							this.notify();	
 						}
 						else {
 							ctx.result("request received at the wrong position in the model.");
@@ -219,6 +219,7 @@ public class WebService extends HttpServlet {
 			long now = System.currentTimeMillis();
 			pos = pos.getInResp().getTarget();
 			lastAction = now;
+			act = true;
 		}
 		if (pos.getMaxDelay() > System.currentTimeMillis() - lastAction || pos.getMaxDelay() == 0) {
 			Thread.sleep(50);
