@@ -134,7 +134,7 @@ public class WebService extends HttpServlet {
 					else {
 						RequestT t2 = dot.getReq(ctx.fullUrl(), dot.getInitialState()); // min weight ?
 						if (t2 !=  null) {
-							//this.wait();
+							this.wait();
 							pos = t2.getTarget();
 							//LoggerFactory.getLogger("MOCK").info(String.format(t.getTarget().toString()));
 							lastAction = System.currentTimeMillis();
