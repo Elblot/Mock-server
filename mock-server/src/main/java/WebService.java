@@ -204,7 +204,7 @@ public class WebService extends HttpServlet {
 				}
 				//LoggerFactory.getLogger("MOCK").info(String.format("stop waiting"));
 				while (runMock(false) == true);
-				LoggerFactory.getLogger("MOCK").info(String.format("init"));
+				//LoggerFactory.getLogger("MOCK").info(String.format("init"));
 				synchronized(this){
 					pos = dot.getInitialState();
 					this.notify();
@@ -216,9 +216,9 @@ public class WebService extends HttpServlet {
 	/** TODO use the weight, the delay, and the repetition 
 	 * @throws InterruptedException **/
 	private boolean runMock(boolean passOutResp) throws InterruptedException {
-		LoggerFactory.getLogger("MOCK").info(String.format("pos :" + pos.toString()));
+		//LoggerFactory.getLogger("MOCK").info(String.format("pos :" + pos.toString()));
 		if (!pos.isInit() && pos.getInResp() != null) {
-			LoggerFactory.getLogger("MOCK").info(String.format("inresp"));
+			//LoggerFactory.getLogger("MOCK").info(String.format("inresp"));
 			long now = System.currentTimeMillis();
 			pos = pos.getInResp().getTarget();
 			lastAction = now;
