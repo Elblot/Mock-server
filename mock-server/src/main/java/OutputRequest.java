@@ -64,9 +64,9 @@ public class OutputRequest extends Thread {
 	private void requestAsync(Request request) {
 		new Thread(() -> {
 			try (Response res = client.newCall(request).execute()) {
-				/*LoggerFactory.getLogger("MOCK").info(String.format("sent: " + request));
+				//LoggerFactory.getLogger("MOCK").info(String.format("sent: " + request));
 				String result = "no response found in the model";
-				//System.out.println(request.toString());
+				/*//System.out.println(request.toString());
 				if(req.getResponse() != null) {
 					match = true;
 					if(req.getResponse().getStatus() != res.code()) match = false;
