@@ -90,6 +90,7 @@ public class WebService extends HttpServlet {
 	private void buildInputRequestHandler() {
 		for (String path: dot.getInputRequests()) {
 			app.get(path, ctx -> {
+				LoggerFactory.getLogger("MOCK").info(String.format("received : " + ctx.fullUrl()));
 				synchronized(this){
 					RequestT t = dot.getReq(ctx.fullUrl(), pos); // min weight ?
 					long now = System.currentTimeMillis();//TODO make for the post to
@@ -162,7 +163,7 @@ public class WebService extends HttpServlet {
 								ctx.status(502);
 								System.err.println("error: response " + resp.toString() + "launched from state " + pos.toString());
 							}
-	
+
 						}
 						else {
 							ctx.result("request received at the wrong position in the model.");
@@ -202,12 +203,17 @@ public class WebService extends HttpServlet {
 					Thread.sleep(50);
 					continue;
 				}
-				//LoggerFactory.getLogger("MOCK").info(String.format("stop waiting"));
-				while (runMock(false) == true);
-				//LoggerFactory.getLogger("MOCK").info(String.format("init"));
 				synchronized(this){
-					pos = dot.getInitialState();
-					this.notify();
+					//LoggerFactory.getLogger("MOCK").info(String.format("stop waiting"));
+					while (runMock(false) == true);
+					//LoggerFactory.getLogger("MOCK").info(String.format("init"));
+					synchronized(this){
+						if (pos.getMaxDelay() > System.currentTimeMillis() - lastAction || pos.getMaxDelay() == 0) {// sort du synchronized pour reception de la requete en attente.
+							continue;
+						}
+						pos = dot.getInitialState();
+						this.notify();
+					}
 				}
 			}
 		};
@@ -226,8 +232,8 @@ public class WebService extends HttpServlet {
 		}
 		if (pos.getMaxDelay() > System.currentTimeMillis() - lastAction || pos.getMaxDelay() == 0) {
 			//LoggerFactory.getLogger("MOCK").info(String.format("wtf1"));
-			Thread.sleep(50);
-			return true;
+			//Thread.sleep(50);
+			return false; // sortie du run et du synchronised pour laisser le thread attendre la requete en entrée.
 		}
 		if (!passOutResp && (pos.plannedResponse() > System.currentTimeMillis() - lastAction || pos.plannedResponse() == 0)) {
 			//LoggerFactory.getLogger("MOCK").info(String.format("wtf2"));

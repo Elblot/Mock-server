@@ -64,29 +64,20 @@ public class OutputRequest extends Thread {
 	private void requestAsync(Request request) {
 		new Thread(() -> {
 			try (Response res = client.newCall(request).execute()) {
-				//LoggerFactory.getLogger("MOCK").info(String.format("req sent"));
+				/*LoggerFactory.getLogger("MOCK").info(String.format("sent: " + request));
 				String result = "no response found in the model";
 				//System.out.println(request.toString());
 				if(req.getResponse() != null) {
 					match = true;
-					/*System.out.println("status rule: " + req.getResponse().getStatus());
-					System.out.println("status resp: " + res.code());*/
 					if(req.getResponse().getStatus() != res.code()) match = false;
-					
-					/*for (String rr: req.getResponse().getHeaders().keySet()) {
-						System.out.println("head rule: " + rr + req.getResponse().getHeaders().get(rr));
-						System.out.println("head resp: " + rr + res.header(rr));
-					}*/
 					final boolean[] doesHeadersMatch = {true};
 					req.getResponse().getHeaders().forEach((s, s2) -> {
 						if(!s2.equals(res.header(s))) doesHeadersMatch[0] = false;
 					});
 					match = (doesHeadersMatch[0]) && match;
-					//System.out.println("body rule: " + req.getResponse().getBody().replaceAll("\\s",""));
-					//System.out.println("body resp: " + res.body().string().replaceAll("\\s",""));
 					if(!Objects.equals(req.getResponse().getBody().replaceAll("\\s",""), res.body().string().replaceAll("\\s",""))) match = false;
 					result = match ? "Response match rule": "Response doesn't match rule";
-				}
+				}*/
 				LoggerFactory.getLogger("MOCK").info(String.format("Request: %s %s -- %d (%s)", request.method(), request.url(), res.code(), result));
 			} catch (IOException e) {
 				LoggerFactory.getLogger("MOCK").error(String.format("Request: %s %s -- ERROR %s", request.method(), request.url(), e.getClass().getSimpleName()));
