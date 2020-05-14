@@ -146,5 +146,21 @@ public class LTS {
 			}
 		}
 	}
+
+	// for debug purpose, to remove
+	public ResponseT getRandResp() {
+		for (ResponseT t : getResponses()) {
+			return t;
+		}
+		return null;
+
+	}
+
+	public State getRandSt() {
+		for (State s : getStates()) {
+			return s;
+		}
+		return null;
+	}
 	
 }

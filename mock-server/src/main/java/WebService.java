@@ -22,15 +22,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 @WebServlet(urlPatterns = {"/*"})
 public class WebService extends HttpServlet {
+	private static final long serialVersionUID = 1L;
 	private List<Rule> rules = new ArrayList<>();
 	private LTS dot;
 	private State pos;
 	private Javalin app;
 	private Map<String, InOutHandler> handlers = new HashMap<>();
 	private long lastAction;
+	private ArrayList<Long> fifo = new ArrayList<Long>();
 
 	/**
 	 * This method starts the web server. The server is listening on 3 paths:
@@ -39,7 +42,7 @@ public class WebService extends HttpServlet {
 	 */
 	public WebService() {
 		app = Javalin.createStandalone(config -> {
-			config.requestLogger((ctx, executionTimeMs) -> LoggerFactory.getLogger("MOCK").info(String.format("%s on %s -> %d", ctx.method(), ctx.url(), ctx.res.getStatus())));
+			config.requestLogger((ctx, executionTimeMs) -> LoggerFactory.getLogger("MOCK").info(String.format("%s on %s -> %d", ctx.method(), ctx.fullUrl(), ctx.res.getStatus())));
 		});
 		app.exception(LoaderException.class, ExceptionHandlers.genericHandler(400));
 		app.exception(RuleAlreadyExistsException.class, ExceptionHandlers.genericHandler(400));
@@ -90,11 +93,13 @@ public class WebService extends HttpServlet {
 	private void buildInputRequestHandler() {
 		for (String path: dot.getInputRequests()) {
 			app.get(path, ctx -> {
-				LoggerFactory.getLogger("MOCK").info(String.format("received : " + ctx.fullUrl()));
+				long time = System.currentTimeMillis();
+				//LoggerFactory.getLogger("MOCK").info(String.format("received : " + Long.toString(System.currentTimeMillis())));
+				//LoggerFactory.getLogger("MOCK").info(String.format("received : " + ctx.fullUrl()));
 				synchronized(this){
 					RequestT t = dot.getReq(ctx.fullUrl(), pos); // min weight ?
 					long now = System.currentTimeMillis();//TODO make for the post to
-					LoggerFactory.getLogger("MOCK").info(String.format(pos.toString()));
+					//LoggerFactory.getLogger("MOCK").info(String.format(pos.toString()));
 					if (t !=  null) {
 						if (t.getDelay() == 0 || lastAction != 0 || t.getDelay() < now - lastAction) {
 							pos = t.getTarget();
@@ -117,7 +122,7 @@ public class WebService extends HttpServlet {
 								if (pos.isFinal()) {
 									//LoggerFactory.getLogger("MOCK").info(String.format("init"));
 									pos = dot.getInitialState();
-									this.notify();
+									//this.notifyAll();
 								}
 							}
 							else {
@@ -135,35 +140,57 @@ public class WebService extends HttpServlet {
 					else {
 						RequestT t2 = dot.getReq(ctx.fullUrl(), dot.getInitialState()); // min weight ?
 						if (t2 !=  null) {
+							//long time = System.currentTimeMillis();
+							fifo.add(time);
+							//LoggerFactory.getLogger("MOCK").info(String.format("in : " + Long.toString(time) + " req : " + ctx.fullUrl()));
 							this.wait();
+							while (getMin(fifo) != time) {
+								//LoggerFactory.getLogger("MOCK").info(String.format("in : " + Long.toString(time) + " req : " + ctx.fullUrl()));
+								this.wait();
+							}							
+							//LoggerFactory.getLogger("MOCK").info(String.format("first : " + time));
 							pos = t2.getTarget();
+							//pos = dot.getRandSt();/////
 							//LoggerFactory.getLogger("MOCK").info(String.format(t.getTarget().toString()));
 							lastAction = System.currentTimeMillis();
 							while (runMock(true) == true);
 							ResponseT resp = t2.getResponse();
+							//ResponseT resp = dot.getRandResp();//////
 							lastAction = System.currentTimeMillis();
 							ctx.result(resp.getBody());
 							ctx.status(resp.getStatus());
+							Thread.sleep(10);////
 							if (resp.getContent() != null) {
 								ctx.contentType(resp.getContent());
 							}
 							for (String h: resp.getHeaders().keySet()) {
 								ctx.header(h, resp.getHeaders().get(h));
 							}
+							//long time2 = 
+							fifo.remove(time);
+							//LoggerFactory.getLogger("MOCK").info(String.format("fifo :" + fifo));
+							//LoggerFactory.getLogger("MOCK").info(String.format("out : " + Long.toString(time2) + " req : " + ctx.fullUrl()));
 							if (pos.equals(resp.getSource())) {
 								//LoggerFactory.getLogger("MOCK").info(String.format("end: " + resp.getTarget().toString()));
 								pos = resp.getTarget();
 								if (pos.isFinal()) {
 									//LoggerFactory.getLogger("MOCK").info(String.format("init"));
-									pos = dot.getInitialState();	
-									this.notify();
+									pos = dot.getInitialState();
+									//this.notifyAll();
 								}
 							}
 							else {
 								ctx.status(502);
 								System.err.println("error: response " + resp.toString() + "launched from state " + pos.toString());
 							}
-
+							//long time2 = fifo.remove();
+							//LoggerFactory.getLogger("MOCK").info(String.format("out : " + Long.toString(time2) + " req : " + ctx.fullUrl()));// TODO verif que tous les threads l'ont analyse
+							//LoggerFactory.getLogger("MOCK").info(String.format("fifo :" + fifo));
+							//LoggerFactory.getLogger("MOCK").info(String.format("out : " + Long.toString(time2) + " req : " + ctx.fullUrl()));
+							/*if (pos.isInit()) {	
+								this.notifyAll();
+							}*/
+							LoggerFactory.getLogger("MOCK").info(String.format("out : " + Long.toString(time) + " req : " + ctx.fullUrl()));
 						}
 						else {
 							ctx.result("request received at the wrong position in the model.");
@@ -176,6 +203,15 @@ public class WebService extends HttpServlet {
 		}
 	}
 
+	static long getMin(ArrayList<Long> a) {
+		long res = a.get(0);
+		for (long l : a) {
+			if (res > l) {
+				res = l;
+			}
+		}
+		return res;
+	}
 
 	/**
 	 * This method is called when the user does a HTTP POST request to the rules
@@ -200,20 +236,20 @@ public class WebService extends HttpServlet {
 				//LoggerFactory.getLogger("MOCK").info(String.format(pos.toString()));
 				if (pos.getMaxDelay() > System.currentTimeMillis() - lastAction || pos.getMaxDelay() == 0) {//TODO 
 					//LoggerFactory.getLogger("MOCK").info(String.format("wait"));
-					Thread.sleep(50);
+					Thread.sleep(10);
 					continue;
 				}
 				synchronized(this){
 					//LoggerFactory.getLogger("MOCK").info(String.format("stop waiting"));
 					while (runMock(false) == true);
 					//LoggerFactory.getLogger("MOCK").info(String.format("init"));
-					synchronized(this){
+					//synchronized(this){
 						if (pos.getMaxDelay() > System.currentTimeMillis() - lastAction || pos.getMaxDelay() == 0) {// sort du synchronized pour reception de la requete en attente.
 							continue;
 						}
 						pos = dot.getInitialState();
-						this.notify();
-					}
+						this.notifyAll();
+					//}
 				}
 			}
 		};
@@ -232,12 +268,12 @@ public class WebService extends HttpServlet {
 		}
 		if (pos.getMaxDelay() > System.currentTimeMillis() - lastAction || pos.getMaxDelay() == 0) {
 			//LoggerFactory.getLogger("MOCK").info(String.format("wtf1"));
-			//Thread.sleep(50);
+			Thread.sleep(10);
 			return false; // sortie du run et du synchronised pour laisser le thread attendre la requete en entrée.
 		}
 		if (!passOutResp && (pos.plannedResponse() > System.currentTimeMillis() - lastAction || pos.plannedResponse() == 0)) {
 			//LoggerFactory.getLogger("MOCK").info(String.format("wtf2"));
-			Thread.sleep(50);
+			Thread.sleep(10);
 			return true;
 		}
 		RequestT output = pos.getOutReq(lastAction);
@@ -254,7 +290,7 @@ public class WebService extends HttpServlet {
 			return true;
 		}
 		if (!pos.getFutureOutReq().isEmpty()) {
-			Thread.sleep(50);
+			Thread.sleep(10);
 			return true;
 		}
 		return false;
@@ -306,6 +342,8 @@ public class WebService extends HttpServlet {
 
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		app.servlet().service(req, resp);
+		//synchronized(this){
+			app.servlet().service(req, resp);
+		//}
 	}
 }

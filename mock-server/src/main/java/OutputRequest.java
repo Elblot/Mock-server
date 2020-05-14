@@ -66,7 +66,7 @@ public class OutputRequest extends Thread {
 			try (Response res = client.newCall(request).execute()) {
 				//LoggerFactory.getLogger("MOCK").info(String.format("sent: " + request));
 				String result = "no response found in the model";
-				/*//System.out.println(request.toString());
+				//System.out.println(request.toString());
 				if(req.getResponse() != null) {
 					match = true;
 					if(req.getResponse().getStatus() != res.code()) match = false;
@@ -77,7 +77,7 @@ public class OutputRequest extends Thread {
 					match = (doesHeadersMatch[0]) && match;
 					if(!Objects.equals(req.getResponse().getBody().replaceAll("\\s",""), res.body().string().replaceAll("\\s",""))) match = false;
 					result = match ? "Response match rule": "Response doesn't match rule";
-				}*/
+				}
 				LoggerFactory.getLogger("MOCK").info(String.format("Request: %s %s -- %d (%s)", request.method(), request.url(), res.code(), result));
 			} catch (IOException e) {
 				LoggerFactory.getLogger("MOCK").error(String.format("Request: %s %s -- ERROR %s", request.method(), request.url(), e.getClass().getSimpleName()));
