@@ -91,47 +91,52 @@ public class WebService extends HttpServlet {
 	}*/
 
 	private void buildInputRequestHandler() {
+		//TODO make for the post to
 		for (String path: dot.getInputRequests()) {
 			app.get(path, ctx -> {
 				long time = System.currentTimeMillis();
-				//LoggerFactory.getLogger("MOCK").info(String.format("received : " + Long.toString(System.currentTimeMillis())));
-				//LoggerFactory.getLogger("MOCK").info(String.format("received : " + ctx.fullUrl()));
+				LoggerFactory.getLogger("MOCK").info(String.format("received : " + time));
+				fifo.add(time);
 				synchronized(this){
 					RequestT t = dot.getReq(ctx.fullUrl(), pos); // min weight ?
-					long now = System.currentTimeMillis();//TODO make for the post to
-					//LoggerFactory.getLogger("MOCK").info(String.format(pos.toString()));
+					long now = System.currentTimeMillis();
 					if (t !=  null) {
 						if (t.getDelay() == 0 || lastAction != 0 || t.getDelay() < now - lastAction) {
+							LoggerFactory.getLogger("MOCK").info(String.format("in : " + Long.toString(time)));
+							while (pos.isInit() && getMin(fifo) != time) {
+								this.wait();
+							}							
 							pos = t.getTarget();
-							//LoggerFactory.getLogger("MOCK").info(String.format(t.getTarget().toString()));
 							lastAction = now;
 							while (runMock(true) == true);
 							ResponseT resp = t.getResponse();
 							lastAction = System.currentTimeMillis();
 							ctx.result(resp.getBody());
 							ctx.status(resp.getStatus());
+							Thread.sleep(50);////
 							if (resp.getContent() != null) {
 								ctx.contentType(resp.getContent());
 							}
 							for (String h: resp.getHeaders().keySet()) {
 								ctx.header(h, resp.getHeaders().get(h));
 							}
+
+							fifo.remove(time);
+							LoggerFactory.getLogger("MOCK").info(String.format("fifo :" + fifo));
+							LoggerFactory.getLogger("MOCK").info(String.format("outini : " + time + " req : " + ctx.fullUrl()));
 							if (pos.equals(resp.getSource())) {
-								//LoggerFactory.getLogger("MOCK").info(String.format("end: " + resp.getTarget().toString()));
 								pos = resp.getTarget();
 								if (pos.isFinal()) {
-									//LoggerFactory.getLogger("MOCK").info(String.format("init"));
 									pos = dot.getInitialState();
-									//this.notifyAll();
 								}
 							}
 							else {
 								ctx.status(502);
 								System.err.println("error: response " + resp.toString() + "launched from state " + pos.toString());
 							}
-
 						}
 						else {
+							fifo.remove(time);
 							ctx.result("request received too late.");
 							ctx.status(501);
 							System.err.println("request received too late.");
@@ -140,22 +145,14 @@ public class WebService extends HttpServlet {
 					else {
 						RequestT t2 = dot.getReq(ctx.fullUrl(), dot.getInitialState()); // min weight ?
 						if (t2 !=  null) {
-							//long time = System.currentTimeMillis();
-							fifo.add(time);
-							//LoggerFactory.getLogger("MOCK").info(String.format("in : " + Long.toString(time) + " req : " + ctx.fullUrl()));
 							this.wait();
 							while (getMin(fifo) != time) {
-								//LoggerFactory.getLogger("MOCK").info(String.format("in : " + Long.toString(time) + " req : " + ctx.fullUrl()));
 								this.wait();
 							}							
-							//LoggerFactory.getLogger("MOCK").info(String.format("first : " + time));
 							pos = t2.getTarget();
-							//pos = dot.getRandSt();/////
-							//LoggerFactory.getLogger("MOCK").info(String.format(t.getTarget().toString()));
 							lastAction = System.currentTimeMillis();
 							while (runMock(true) == true);
 							ResponseT resp = t2.getResponse();
-							//ResponseT resp = dot.getRandResp();//////
 							lastAction = System.currentTimeMillis();
 							ctx.result(resp.getBody());
 							ctx.status(resp.getStatus());
@@ -166,33 +163,21 @@ public class WebService extends HttpServlet {
 							for (String h: resp.getHeaders().keySet()) {
 								ctx.header(h, resp.getHeaders().get(h));
 							}
-							//long time2 = 
 							fifo.remove(time);
-							//LoggerFactory.getLogger("MOCK").info(String.format("fifo :" + fifo));
-							//LoggerFactory.getLogger("MOCK").info(String.format("out : " + Long.toString(time2) + " req : " + ctx.fullUrl()));
 							if (pos.equals(resp.getSource())) {
-								//LoggerFactory.getLogger("MOCK").info(String.format("end: " + resp.getTarget().toString()));
 								pos = resp.getTarget();
 								if (pos.isFinal()) {
-									//LoggerFactory.getLogger("MOCK").info(String.format("init"));
 									pos = dot.getInitialState();
-									//this.notifyAll();
 								}
 							}
 							else {
 								ctx.status(502);
 								System.err.println("error: response " + resp.toString() + "launched from state " + pos.toString());
 							}
-							//long time2 = fifo.remove();
-							//LoggerFactory.getLogger("MOCK").info(String.format("out : " + Long.toString(time2) + " req : " + ctx.fullUrl()));// TODO verif que tous les threads l'ont analyse
-							//LoggerFactory.getLogger("MOCK").info(String.format("fifo :" + fifo));
-							//LoggerFactory.getLogger("MOCK").info(String.format("out : " + Long.toString(time2) + " req : " + ctx.fullUrl()));
-							/*if (pos.isInit()) {	
-								this.notifyAll();
-							}*/
-							LoggerFactory.getLogger("MOCK").info(String.format("out : " + Long.toString(time) + " req : " + ctx.fullUrl()));
+							LoggerFactory.getLogger("MOCK").info(String.format("out : " +  time	 + " req : " + ctx.fullUrl()));
 						}
 						else {
+							fifo.remove(time);
 							ctx.result("request received at the wrong position in the model.");
 							ctx.status(400);
 							System.err.println("not now, i'm busy.");
@@ -233,23 +218,20 @@ public class WebService extends HttpServlet {
 			ctx.status(204);
 			//for (int i = 0 ; i < 10; i++) { //nb session run by the mock
 			while(true) {
-				//LoggerFactory.getLogger("MOCK").info(String.format(pos.toString()));
 				if (pos.getMaxDelay() > System.currentTimeMillis() - lastAction || pos.getMaxDelay() == 0) {//TODO 
-					//LoggerFactory.getLogger("MOCK").info(String.format("wait"));
 					Thread.sleep(10);
 					continue;
 				}
 				synchronized(this){
-					//LoggerFactory.getLogger("MOCK").info(String.format("stop waiting"));
 					while (runMock(false) == true);
-					//LoggerFactory.getLogger("MOCK").info(String.format("init"));
-					//synchronized(this){
-						if (pos.getMaxDelay() > System.currentTimeMillis() - lastAction || pos.getMaxDelay() == 0) {// sort du synchronized pour reception de la requete en attente.
-							continue;
-						}
-						pos = dot.getInitialState();
+					if (pos.isInit()) {
 						this.notifyAll();
-					//}
+					}
+					if (pos.getMaxDelay() > System.currentTimeMillis() - lastAction || pos.getMaxDelay() == 0) {// sort du synchronized pour reception de la requete en attente.
+						continue;
+					}
+					pos = dot.getInitialState();
+					this.notifyAll();
 				}
 			}
 		};
@@ -258,27 +240,22 @@ public class WebService extends HttpServlet {
 	/** TODO use the weight, the delay, and the repetition 
 	 * @throws InterruptedException **/
 	private boolean runMock(boolean passOutResp) throws InterruptedException {
-		//LoggerFactory.getLogger("MOCK").info(String.format("pos :" + pos.toString()));
 		if (!pos.isInit() && pos.getInResp() != null) {
-			//LoggerFactory.getLogger("MOCK").info(String.format("inresp"));
 			long now = System.currentTimeMillis();
 			pos = pos.getInResp().getTarget();
 			lastAction = now;
 			return true;
 		}
 		if (pos.getMaxDelay() > System.currentTimeMillis() - lastAction || pos.getMaxDelay() == 0) {
-			//LoggerFactory.getLogger("MOCK").info(String.format("wtf1"));
 			Thread.sleep(10);
 			return false; // sortie du run et du synchronised pour laisser le thread attendre la requete en entrée.
 		}
 		if (!passOutResp && (pos.plannedResponse() > System.currentTimeMillis() - lastAction || pos.plannedResponse() == 0)) {
-			//LoggerFactory.getLogger("MOCK").info(String.format("wtf2"));
 			Thread.sleep(10);
 			return true;
 		}
 		RequestT output = pos.getOutReq(lastAction);
 		if (output != null) {
-			//LoggerFactory.getLogger("MOCK").info(String.format("pend req"));
 			output.incWeight();
 			OutputRequest send = new OutputRequest(output);
 			lastAction = System.currentTimeMillis();;
@@ -296,54 +273,8 @@ public class WebService extends HttpServlet {
 		return false;
 	}
 
-
-	/**
-	 * This method calls the addHandler method or creates an output request according
-	 * to the rule type.
-	 * @param rules: the list of rules.
-	 * @throws RuleAlreadyExistsException if the rule already exists.
-	 */
-	/*private void initRules(List<Rule> rules) throws RuleAlreadyExistsException {
-        for (Rule rule: rules) {
-            if (rule instanceof InOutRule) {
-                addHandler((InOutRule) rule);
-            } else if (rule instanceof OutInRule) {
-                this.rules.add(rule);
-                new OutputRequest((OutInRule) rule).run();//.start();  start for multi-threading
-            }
-        }
-    }*/
-
-	/**
-	 * This method creates a handler for the given rule.
-	 * @param rule: the InOut rule.
-	 * @throws RuleAlreadyExistsException if the rule already exists.
-	 */
-	private void addHandler(InOutRule rule) throws RuleAlreadyExistsException {
-		String simplePath = rule.getRequest().getPath().split("\\?")[0];
-		String id = rule.getRequest().getMethod() + simplePath;
-		if (handlers.containsKey(id)) {
-			handlers.get(id).addRule(rule);
-		} else {
-			InOutHandler handler = new InOutHandler();
-			handler.addRule(rule);
-			try {
-				app.addHandler(HandlerType.valueOf(rule.getRequest().getMethod()), simplePath, handler);
-			} catch (IllegalArgumentException e) {
-				throw new RuleAlreadyExistsException(String.format("The route '%s -> %s' cannot be created.",rule.getRequest().getMethod(), simplePath));
-			}
-			handlers.put(id, handler);
-		}
-	}
-
-	private List<Rule> getRules() {
-		return rules;
-	}
-
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		//synchronized(this){
-			app.servlet().service(req, resp);
-		//}
+		app.servlet().service(req, resp);
 	}
 }
