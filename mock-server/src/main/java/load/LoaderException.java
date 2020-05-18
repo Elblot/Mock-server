@@ -1,7 +1,12 @@
 package load;
 
 public class LoaderException extends Exception {
-    public LoaderException() {
+    /**
+	 * @generated
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public LoaderException() {
     }
 
     public LoaderException(String message) {

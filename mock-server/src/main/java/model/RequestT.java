@@ -1,9 +1,7 @@
 package model;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class RequestT extends Transition {
@@ -80,26 +78,27 @@ public class RequestT extends Transition {
 		Uri = path;
 	}
 
+	
 	public String getPath() {
 		String res = "http://";
 		res = res + to + ":8080";
 		res = res + Uri;
-		//System.out.println(res);
 		return res;
 	}
 
+	/**
+	 * @return the shorten Uri (without the parameters).
+	 */
 	public String getPathReq() {
-		//String res = 
-		//String res = "http://";
-		//res = res + to + ":8080";
 		if (Uri.contains("?")) {
 			return Uri.substring(0,Uri.indexOf("?"));
 		}
 			return Uri;
-		//System.out.println(res);
-		//return res;
 	}
 	
+	/**
+	 * @return the waited response associated.
+	 */
 	public ResponseT getResponse() {
 		return resp;
 	}
@@ -108,6 +107,10 @@ public class RequestT extends Transition {
 		resp = r;
 	}
 
+	/**
+	 * @param dot the lts
+	 * @return the set of state that have the request as future.
+	 */
 	public Set<State> getSources(LTS dot) {
 		Set<State> res = new HashSet<State>();
 		for (Transition t : dot.getTransitions()) {
@@ -118,6 +121,9 @@ public class RequestT extends Transition {
 		return res;
 	}
 
+	/**
+	 * Check if the Transition t and this have the same Uri.
+	 */
 	private boolean samePath(Transition t) {
 		return (t instanceof RequestT && getUri().equals(((RequestT) t).getUri()));
 	}

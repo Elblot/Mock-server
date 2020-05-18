@@ -3,10 +3,7 @@ package model;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
-
-import org.slf4j.LoggerFactory;
 
 import model.Transition;
 
@@ -16,7 +13,6 @@ public class State {
 	private Set<Transition> predecesseurs;
 	private String label;
 	
-	/* only for this program */
 	private boolean init;
 	private boolean finalState;
 	
@@ -50,14 +46,14 @@ public class State {
 
 	public void addSuccesseur(Transition t){
 		if(t.getSource()!=this){
-			throw new RuntimeException("add transition "+t+" as successor of "+this+" is problematic");
+			throw new RuntimeException("transition " + t + " is not a successor of " + this);
 		}
 		successeurs.add(t);
 	}
 	
 	public void addPredecesseur(Transition t){
 		if(t.getTarget()!=this){
-			throw new RuntimeException("add transition "+t+" as predecessor of "+this+" is problematic");
+			throw new RuntimeException("transition " + t + " is not a predecessor of " + this);
 		}
 		predecesseurs.add(t);
 	}
@@ -117,6 +113,9 @@ public class State {
 		return label;
 	}
 
+	/**
+	 * @return the set of requests that can be received from this state.
+	 */
 	public Set<RequestT> getFutureInReq() {
 		Set<RequestT> res = new HashSet<RequestT>();
 		for (Transition succ : getSuccesseurs()) {
@@ -127,6 +126,9 @@ public class State {
 		return res;
 	}
 	
+	/**
+	 * @return the set of responses that can be sent from this state.
+	 */
 	public Set<ResponseT> getFutureOutResp() {
 		Set<ResponseT> res = new HashSet<ResponseT>();
 		for (Transition succ : getSuccesseurs()) {
@@ -137,6 +139,9 @@ public class State {
 		return res;
 	}
 	
+	/**
+	 * @return the set of requests that can be sent form this state.
+	 */
 	public Set<RequestT> getFutureOutReq() {
 		Set<RequestT> res = new HashSet<RequestT>();
 		for (Transition succ : getSuccesseurs()) {
@@ -147,7 +152,9 @@ public class State {
 		return res;
 	}
 	
-	/* return the next output with weight min */
+	/**
+	 *  @return the next request to send (the one with the minimal weight) 
+	 */
 	public RequestT getOutReq(long lastAction) {
 		//LoggerFactory.getLogger("MOCK").info(String.format(this.toString()));
 		RequestT res = null;
@@ -161,6 +168,9 @@ public class State {
 		return res;
 	}
 
+	/**
+	 * @return the next received response from this state with the minimal weight. 
+	 */
 	public ResponseT getInResp() {
 		ResponseT res = null;
 		int weight = -1;
@@ -176,10 +186,12 @@ public class State {
 		return label.equals(s.getLabel()); //each state have a different label
 	}
 
+	/**
+	 * @return the maximal time to wait for a request from this state.
+	 */
 	public long getMaxDelay() {
 		long d = -1;
 		for (RequestT t : getFutureInReq()) {
-			//System.out.println(t);
 			if (t.getDelay() > d) {
 				d = t.getDelay();
 			}
@@ -187,6 +199,9 @@ public class State {
 		return d;
 	}
 
+	/**
+	 * @return the maximal time to wait for the response to be sent.
+	 */
 	public long plannedResponse() {
 		long d = -1;
 		for (ResponseT t : getFutureOutResp()) {

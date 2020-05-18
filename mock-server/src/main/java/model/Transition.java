@@ -1,10 +1,7 @@
 package model;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -131,11 +128,14 @@ public abstract class Transition {
 		return name;				
 	}
 	
+	/**
+	 * @param resp
+	 * @return the set of request that have resp for response in the model.
+	 */
 	public Set<RequestT> getLastRequests(ResponseT resp){
 		Set<RequestT> set = new HashSet<RequestT>();
 		for (Transition t : source.getPredecesseurs()) {
 			if (t instanceof RequestT && t.getFrom().equals(resp.getTo()) && t.getTo().equals(resp.getFrom())){
-				//System.out.println(t);
 				set.add((RequestT) t); 
 			}
 			else if (t == this) {
