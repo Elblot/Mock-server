@@ -13,7 +13,11 @@ public class DotLoader implements Loader {
 		LTS lts = new LTS();
 		
 		str = str.substring(29);
+		if (str.startsWith(";")) {
+			str = str.substring(1);
+		}
 		str = str.replace("S00 -> S1", "S00 -> S1[];");
+		str = str.replace("S00 -> S1;", "S00 -> S1[];");
 		String[] dot = str.split("];");
 		int i = 0;			
 		String line = dot[i] + "]";
