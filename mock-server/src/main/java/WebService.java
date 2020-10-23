@@ -49,6 +49,7 @@ public class WebService extends HttpServlet {
 	}
 
 	/**
+	 * TODO
 	 * This method is called when the user does a HTTP POST request to the
 	 * attack path of the mock IP address. It calls the correct attack methods
 	 * according to the user's choice.
@@ -133,7 +134,7 @@ public class WebService extends HttpServlet {
 								pos = dot.getInitialState();
 							}
 						}
-						else { // the request is receive after the delay
+						else { // the request is received after the delay
 							fifo.remove(time);
 							ctx.result("request received too late.");
 							ctx.status(500);
@@ -273,6 +274,7 @@ public class WebService extends HttpServlet {
 		RequestT output = pos.getOutReq(lastAction);
 		if (output != null) {
 			output.incWeight();
+			System.out.println(output.toString());
 			OutputRequest send = new OutputRequest(output);
 			lastAction = System.currentTimeMillis();;
 			send.run();
@@ -292,6 +294,7 @@ public class WebService extends HttpServlet {
 
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		System.out.println(req.toString());
 		app.servlet().service(req, resp);
 	}
 }

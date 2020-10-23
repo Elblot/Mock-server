@@ -22,7 +22,12 @@ public class ResponseT extends Transition {
 		to = to.substring(0,to.indexOf(separator));
 		if (trans.contains("weight=")) {
 			String w = trans.substring(trans.indexOf("weight=")+7);
-			w = w.substring(0,w.indexOf(separator));
+			if (w.contains(separator)) {
+				w = w.substring(0,w.indexOf(separator));
+			}
+			else {
+				w = w.substring(0,w.indexOf(")"));
+			}
 			weight = Integer.parseInt(w);
 		}
 		else {
@@ -30,7 +35,12 @@ public class ResponseT extends Transition {
 		}
 		if (trans.contains("repetition=")) {
 			String w = trans.substring(trans.indexOf("reptition=")+10);
-			w = w.substring(0,w.indexOf(separator));
+			if (w.contains(separator)) {
+				w = w.substring(0,w.indexOf(separator));
+			}
+			else {
+				w = w.substring(0,w.indexOf(")"));
+			}
 			repetition = Integer.parseInt(w);
 		}
 		else {
@@ -38,7 +48,12 @@ public class ResponseT extends Transition {
 		}
 		if (trans.contains("Content-Type=")) {
 			String w = trans.substring(trans.indexOf("Content-Type=")+13);
-			w = w.substring(0,w.indexOf(separator));
+			if (w.contains(separator)) {
+				w = w.substring(0,w.indexOf(separator));
+			}
+			else {
+				w = w.substring(0,w.indexOf(")"));
+			}
 			content = w;
 		}
 		else {
@@ -46,18 +61,36 @@ public class ResponseT extends Transition {
 		}
 		if (trans.contains("delay=")) {
 			String w = trans.substring(trans.indexOf("delay=")+6);
-			w = w.substring(0,w.indexOf(separator));
+			if (w.contains(separator)) {
+				w = w.substring(0,w.indexOf(separator));
+			}
+			else {
+				w = w.substring(0,w.indexOf(")"));
+			}
 			delay = Long.parseLong(w);
 		}
 		else {
 			delay = 0;
 		}	
+		if (trans.contains("start=") && trans.contains("law=")) {
+			String sta = trans.substring(trans.indexOf("start=")+6);
+			sta = sta.substring(0,sta.indexOf(separator));
+			start = Double.parseDouble(sta);
+			law = trans.substring(trans.indexOf("law=")+4);
+			if (law.contains(separator)) {
+				law = law.substring(0,law.indexOf(separator));
+			}
+			else {
+				law = law.substring(0,law.indexOf(")"));
+			}
+		}
 		headers = new HashMap<String,String>();
 		String[] e = trans.substring(trans.indexOf("("), trans.length() - 1).split(separator);
 		for (String param: e) {
 			if (!param.contains("Host=") && !param.contains("Dest=") &&
 				!param.contains("delay=") && !param.contains("repetition=") && !param.contains("weight=") && 
-				!param.contains("status=") && !param.contains("body=") ) {
+				!param.contains("status=") && !param.contains("body=") && !param.contains("start=") &&
+				!param.contains("law=")) {
 				headers.put(param.substring(0, param.indexOf("=")), param.substring(param.indexOf("=") + 1));
 			}
 		}
@@ -66,7 +99,14 @@ public class ResponseT extends Transition {
 	}
 	
 	public String getBody() {
-		return body;
+		if (body.contains("**values**")) {
+			String body2 = body.replaceAll("\\*\\*values\\*\\*", Double.toString(start));
+			ApplyLaw();
+			return body2;
+		}
+		else {
+			return body;
+		}
 	}
 	
 	public void setBody(String v) {

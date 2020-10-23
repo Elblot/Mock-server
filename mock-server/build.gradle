@@ -26,4 +26,5 @@ dependencies {
     compile 'org.yaml:snakeyaml:1.25'
     compile group: 'org.json', name: 'json', version: '20190722'
     compile 'com.squareup.okhttp3:okhttp:4.2.2'
+    compile files('/home/blot/Bureau/exp4j.jar')
 }

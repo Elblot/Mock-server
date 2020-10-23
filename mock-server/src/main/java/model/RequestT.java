@@ -9,7 +9,7 @@ public class RequestT extends Transition {
 	private String Verb;
 	private String Uri;
 	private ResponseT resp;
-	
+
 	public RequestT(State src, String trans, State dst) {
 		name = trans;
 		Verb = trans.substring(trans.indexOf("Verb=")+5);
@@ -22,7 +22,12 @@ public class RequestT extends Transition {
 		to = to.substring(0,to.indexOf(separator));
 		if (trans.contains("weight=")) {
 			String w = trans.substring(trans.indexOf("weight=")+7);
-			w = w.substring(0,w.indexOf(separator));
+			if (w.contains(separator)) {
+				w = w.substring(0,w.indexOf(separator));
+			}
+			else {
+				w = w.substring(0,w.indexOf(")"));
+			}
 			weight = Integer.parseInt(w);
 		}
 		else {
@@ -30,19 +35,46 @@ public class RequestT extends Transition {
 		}
 		if (trans.contains("repetition=")) {
 			String w = trans.substring(trans.indexOf("reptition=")+10);
-			w = w.substring(0,w.indexOf(separator));
+			if (w.contains(separator)) {
+				w = w.substring(0,w.indexOf(separator));
+			}
+			else {
+				w = w.substring(0,w.indexOf(")"));
+			}
 			repetition = Integer.parseInt(w);
 		}
 		else {
 			repetition = 1;			
 		}
+		if (trans.contains("start=") && trans.contains("law=")) {
+			String st = trans.substring(trans.indexOf("start=")+6);
+			st = st.substring(0,st.indexOf(separator));
+			start = Double.parseDouble(st);
+			law = trans.substring(trans.indexOf("law=")+4);
+			if (law.contains(separator)) {
+				law = law.substring(0,law.indexOf(separator));
+			}
+			else {
+				law = law.substring(0,law.indexOf(")"));
+			}
+		}
 		if (trans.contains("body=")) {
 			String body = trans.substring(trans.indexOf("body=")+5);
-			body = body.substring(0,body.indexOf(separator));
+			if (body.contains(separator)) {
+				body = body.substring(0,body.indexOf(separator));
+			}
+			else {
+				body = body.substring(0,body.indexOf(")"));
+			}
 		}
 		if (trans.contains("delay=")) {
 			String w = trans.substring(trans.indexOf("delay=")+6);
-			w = w.substring(0,w.indexOf(separator));
+			if (w.contains(separator)) {
+				w = w.substring(0,w.indexOf(separator));
+			}
+			else {
+				w = w.substring(0,w.indexOf(")"));
+			}
 			delay = Long.parseLong(w);
 		}
 		else {
@@ -52,37 +84,45 @@ public class RequestT extends Transition {
 		String[] e = trans.substring(trans.indexOf("("), trans.length() - 1).split(separator);
 		for (String param: e) {
 			if (!param.contains("Verb=") && !param.contains("Host=") && !param.contains("Dest=") &&
-				!param.contains("delay=") && !param.contains("repetition=") && !param.contains("weight=") && 
-				!param.contains("Uri=") && !param.contains("body=") ) {
+					!param.contains("delay=") && !param.contains("repetition=") && !param.contains("weight=") && 
+					!param.contains("Uri=") && !param.contains("body=") && !param.contains("start=") && 
+					!param.contains("law=")) {
 				headers.put(param.substring(0, param.indexOf("=")), param.substring(param.indexOf("=") + 1));
 			}
 		}
-		
+
 		source = src;
 		target = dst;
 	}
-	
+
 	public String getVerb() {
 		return Verb;
 	}
-	
+
 	public void setVerb(String v) {
 		Verb = v;
 	}
-	
+
 	public String getUri() {
-		return Uri;
+		if (Uri.contains("**values**")) {
+			String Uri2 = Uri.replaceAll("\\*\\*values\\*\\*", Double.toString(start));
+			ApplyLaw();
+			return Uri2;
+		}
+		else {
+			return Uri;
+		}
 	}
-	
+
 	public void setUri(String path) {
 		Uri = path;
 	}
 
-	
+
 	public String getPath() {
 		String res = "http://";
 		res = res + to + ":8080";
-		res = res + Uri;
+		res = res + getUri();
 		return res;
 	}
 
@@ -93,16 +133,16 @@ public class RequestT extends Transition {
 		if (Uri.contains("?")) {
 			return Uri.substring(0,Uri.indexOf("?"));
 		}
-			return Uri;
+		return Uri;
 	}
-	
+
 	/**
 	 * @return the waited response associated.
 	 */
 	public ResponseT getResponse() {
 		return resp;
 	}
-	
+
 	public void setResponse(ResponseT r) {
 		resp = r;
 	}

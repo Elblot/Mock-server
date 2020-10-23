@@ -4,12 +4,16 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+//import java.lang.Math;
+import net.objecthunter.exp4j.Expression;
+import net.objecthunter.exp4j.ExpressionBuilder;
 
 public abstract class Transition {
 
 	protected String name;
 	//private String label;
 	//private String[] parameters;
+	
 
 	protected String from;
 	protected String to;
@@ -26,6 +30,8 @@ public abstract class Transition {
 	
 	protected String separator = "@";
 	
+	protected String law = "";
+	protected double start; 
 	
 	public String getName() {
 		return name;
@@ -152,5 +158,12 @@ public abstract class Transition {
 		return set;
 	}
 
+	protected void ApplyLaw() {
+		Expression e = new ExpressionBuilder(law)
+		        .variables("start")
+		        .build()
+		        .setVariable("start", start);
+		start = e.evaluate();
+	}
 	
 }
