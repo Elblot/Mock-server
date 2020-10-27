@@ -72,16 +72,16 @@ public class ResponseT extends Transition {
 		else {
 			delay = 0;
 		}	
-		if (trans.contains("start=") && trans.contains("law=")) {
+		if (trans.contains("start=") && trans.contains("fun=")) {
 			String sta = trans.substring(trans.indexOf("start=")+6);
 			sta = sta.substring(0,sta.indexOf(separator));
 			start = Double.parseDouble(sta);
-			law = trans.substring(trans.indexOf("law=")+4);
-			if (law.contains(separator)) {
-				law = law.substring(0,law.indexOf(separator));
+			fun = trans.substring(trans.indexOf("fun=")+4);
+			if (fun.contains(separator)) {
+				fun = fun.substring(0,fun.indexOf(separator));
 			}
 			else {
-				law = law.substring(0,law.indexOf(")"));
+				fun = fun.substring(0,fun.indexOf(")"));
 			}
 		}
 		headers = new HashMap<String,String>();

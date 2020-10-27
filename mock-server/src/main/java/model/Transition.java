@@ -30,7 +30,7 @@ public abstract class Transition {
 	
 	protected String separator = "@";
 	
-	protected String law = "";
+	protected String fun = "";
 	protected double start; 
 	
 	public String getName() {
@@ -159,7 +159,7 @@ public abstract class Transition {
 	}
 
 	protected void ApplyLaw() {
-		Expression e = new ExpressionBuilder(law)
+		Expression e = new ExpressionBuilder(fun)
 		        .variables("start")
 		        .build()
 		        .setVariable("start", start);

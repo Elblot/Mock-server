@@ -179,7 +179,7 @@ public class WebService extends HttpServlet {
 							}
 							//LoggerFactory.getLogger("MOCK").info(String.format("out : " +  time	 + " req : " + ctx.fullUrl()));
 						}
-						else { // the request is receive after the delay
+						else { // the request is received at the wrong position in the model.
 							fifo.remove(time);
 							ctx.result("request received at the wrong position in the model.");
 							ctx.status(500);
@@ -253,7 +253,7 @@ public class WebService extends HttpServlet {
 	 * @throws InterruptedException
 	 *  **/
 	private boolean runMock(boolean passOutResp) throws InterruptedException {
-		// received response are already processed, skip them in the model
+		// received response are already automatically processed, skip them in the model
 		if (!pos.isInit() && pos.getInResp() != null) {
 			long now = System.currentTimeMillis();
 			pos = pos.getInResp().getTarget();

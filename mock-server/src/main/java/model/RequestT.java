@@ -46,16 +46,16 @@ public class RequestT extends Transition {
 		else {
 			repetition = 1;			
 		}
-		if (trans.contains("start=") && trans.contains("law=")) {
+		if (trans.contains("start=") && trans.contains("fun=")) {
 			String st = trans.substring(trans.indexOf("start=")+6);
 			st = st.substring(0,st.indexOf(separator));
 			start = Double.parseDouble(st);
-			law = trans.substring(trans.indexOf("law=")+4);
-			if (law.contains(separator)) {
-				law = law.substring(0,law.indexOf(separator));
+			fun = trans.substring(trans.indexOf("fun=")+4);
+			if (fun.contains(separator)) {
+				fun = fun.substring(0,fun.indexOf(separator));
 			}
 			else {
-				law = law.substring(0,law.indexOf(")"));
+				fun = fun.substring(0,fun.indexOf(")"));
 			}
 		}
 		if (trans.contains("body=")) {
