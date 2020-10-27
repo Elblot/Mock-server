@@ -13,7 +13,7 @@
 			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="exp4j.jar"/>
+	<classpathentry kind="lib" path="/home/blot/git/mockserver/mock-server/exp4j.jar"/>
 	<classpathentry kind="lib" path="/home/blot/Bureau/exp4j.jar"/>
 	<classpathentry kind="output" path="bin/default"/>
 </classpath>
