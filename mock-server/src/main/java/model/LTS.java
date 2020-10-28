@@ -129,7 +129,7 @@ public class LTS {
 						+ "path: " + t.getPath() + "\n"
 						+ "prefix:" + prefix + "\n"
 						+ "suffix:" + suffix);
-				String path1 = t.getPath().replace("\\*\\*values\\*\\*", "");
+				String path1 = t.getPath().replaceAll("\\*\\*values\\*\\*", "");
 				if (url.length() > prefix + suffix) {
 					String urlprefix = url.substring(0, prefix);
 					String urlsuffix = url.substring(url.length() - suffix - 1);
