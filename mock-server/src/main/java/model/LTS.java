@@ -123,6 +123,10 @@ public class LTS {
 						match = Pattern.matches(t.getRegex(), value);
 					}
 				}
+				System.out.println("url: " + url + "\n"
+						+ "path: " + t.getPath() + "\n"
+						+ "prefix:" + prefix + "\n"
+						+ "suffix:" + suffix);
 				String path1 = t.getPath().replace("\\*\\*values\\*\\*", "");
 				if (url.length() > prefix + suffix) {
 					String urlprefix = url.substring(0, prefix);
@@ -139,6 +143,7 @@ public class LTS {
 				}				
 			}
 			else {
+				System.out.println("no values found");
 				if (t.getPath().equals(url) && (t.getWeight() < w | w == -1)) {
 					res = t;
 					w = t.getWeight();
