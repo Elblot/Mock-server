@@ -138,8 +138,8 @@ public class LTS {
 							+ "path: " + t.getPath() + "\n"
 							+ "prefix:" + urlprefix + "\n"
 							+ "suffix:" + urlsuffix +"\n"
-							+ "path1: " + t.getPath() + "\n"
-							+ "path2: " + t.getPath());
+							+ "path1: " + path1 + "\n"
+							+ "path2: " + path2);
 					if (match && path1.equals(path2) && (t.getWeight() < w | w == -1)) {
 						res = t;
 						w = t.getWeight();
