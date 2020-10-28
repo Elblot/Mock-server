@@ -34,7 +34,7 @@ public class WebService extends HttpServlet {
 	 */
 	public WebService() {
 		app = Javalin.createStandalone(config -> {
-			config.requestLogger((ctx, executionTimeMs) -> LoggerFactory.getLogger("MOCK").info(String.format("%s on %s -> %d", ctx.method(), ctx.fullUrl(), ctx.res.getStatus())));
+			config.requestLogger((ctx, executionTimeMs) -> LoggerFactory.getLogger("MOCK").info(String.format("%s on %s -> %d: %s", ctx.method(), ctx.fullUrl(), ctx.res.getStatus(), ctx.resultString())));
 		});
 		app.exception(LoaderException.class, ExceptionHandlers.genericHandler(400));
 		app.exception(Exception.class, (exception, ctx) -> {
