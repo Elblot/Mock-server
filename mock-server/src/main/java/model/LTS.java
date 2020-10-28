@@ -119,7 +119,7 @@ public class LTS {
 				int suffix = t.getPath().length() - 1 - t.getPath().indexOf("**values**") - 10;
 				if (!t.getRegex().equals("")) {
 					if (url.length() > prefix + suffix) {
-						String value = url.substring(prefix, url.length() - suffix);
+						String value = url.substring(prefix, url.length() - suffix - 1);
 						System.out.println("regex: " + t.getRegex() + "\n"
 								+ "value: " + value);		
 						match = Pattern.matches(t.getRegex(), value);
@@ -132,7 +132,7 @@ public class LTS {
 				String path1 = t.getPath().replace("\\*\\*values\\*\\*", "");
 				if (url.length() > prefix + suffix) {
 					String urlprefix = url.substring(0, prefix);
-					String urlsuffix = url.substring(url.length() - suffix - 1);// a verif
+					String urlsuffix = url.substring(url.length() - suffix - 1);
 					System.out.println("url: " + url + "\n"
 							+ "path: " + t.getPath() + "\n"
 							+ "prefix:" + urlprefix + "\n"
