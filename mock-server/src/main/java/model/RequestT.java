@@ -133,7 +133,7 @@ public class RequestT extends Transition {
 	}
 
 	public String getUri() {
-		if (Uri.contains("**values**")) {
+		if (isOutput() && Uri.contains("**values**")) {
 			String Uri2 = Uri.replaceAll("\\*\\*values\\*\\*", Double.toString(start));
 			ApplyLaw();
 			return Uri2;
