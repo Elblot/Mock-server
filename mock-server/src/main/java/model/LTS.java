@@ -118,18 +118,25 @@ public class LTS {
 				int prefix = t.getPath().indexOf("**values**");
 				int suffix = t.getPath().length() -1 - t.getPath().indexOf("**values**") + 10;
 				if (!t.getRegex().equals("")) {
-					String value = url.substring(prefix, url.length() - suffix);
-					match = Pattern.matches(t.getRegex(), value);
+					if (url.length() > prefix + suffix) {
+						String value = url.substring(prefix, url.length() - suffix);
+						match = Pattern.matches(t.getRegex(), value);
+					}
 				}
 				String path1 = t.getPath().replace("\\*\\*values\\*\\*", "");
-				String urlprefix = url.substring(0, prefix);
-				String urlsuffix = url.substring(url.length() - suffix);// a verif
-				String path2 = urlprefix + urlsuffix;
-				if (match && path1.equals(path2) && (t.getWeight() < w | w == -1)) {
-					res = t;
-					w = t.getWeight();
-				}
-				
+				if (url.length() > prefix + suffix) {
+					String urlprefix = url.substring(0, prefix);
+					String urlsuffix = url.substring(url.length() - suffix);// a verif
+					System.out.println("url: " + url + "\n"
+							+ "path: " + t.getPath() + "\n"
+							+ "prefix:" + urlprefix + "\n"
+							+ "suffix:" + urlsuffix);
+					String path2 = urlprefix + urlsuffix;
+					if (match && path1.equals(path2) && (t.getWeight() < w | w == -1)) {
+						res = t;
+						w = t.getWeight();
+					}
+				}				
 			}
 			else {
 				if (t.getPath().equals(url) && (t.getWeight() < w | w == -1)) {
