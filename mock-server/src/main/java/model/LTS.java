@@ -116,7 +116,7 @@ public class LTS {
 			if (t.getPath().contains("**values**")) {
 				boolean match = true;
 				int prefix = t.getPath().indexOf("**values**");
-				int suffix = t.getPath().length() -1 - t.getPath().indexOf("**values**") + 10;
+				int suffix = t.getPath().length() - 1 - t.getPath().indexOf("**values**") - 10;
 				if (!t.getRegex().equals("")) {
 					if (url.length() > prefix + suffix) {
 						String value = url.substring(prefix, url.length() - suffix);
