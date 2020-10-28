@@ -13,13 +13,33 @@ public class RequestT extends Transition {
 	public RequestT(State src, String trans, State dst) {
 		name = trans;
 		Verb = trans.substring(trans.indexOf("Verb=")+5);
-		Verb = Verb.substring(0,Verb.indexOf(separator));
+		if (Verb.contains(separator)) {
+			Verb = Verb.substring(0,Verb.indexOf(separator));
+		}
+		else {
+			Verb = Verb.substring(0,Verb.indexOf(")"));
+		}
 		Uri = trans.substring(trans.indexOf("Uri=")+4);
-		Uri = Uri.substring(0,Uri.indexOf(separator));
+		if (Uri.contains(separator)) {
+			Uri = Uri.substring(0,Uri.indexOf(separator));
+		}
+		else {
+			Uri = Uri.substring(0,Uri.indexOf(")"));
+		}
 		from = trans.substring(trans.indexOf("Host=")+5);
-		from = from.substring(0,from.indexOf(separator));
+		if (from.contains(separator)) {
+			from = from.substring(0,from.indexOf(separator));
+		}
+		else {
+			from = from.substring(0,from.indexOf(")"));
+		}
 		to = trans.substring(trans.indexOf("Dest=")+5);
-		to = to.substring(0,to.indexOf(separator));
+		if (to.contains(separator)) {
+			to = to.substring(0,to.indexOf(separator));
+		}
+		else {
+			to = to.substring(0,to.indexOf(")"));
+		}
 		if (trans.contains("weight=")) {
 			String w = trans.substring(trans.indexOf("weight=")+7);
 			if (w.contains(separator)) {
@@ -59,14 +79,23 @@ public class RequestT extends Transition {
 			}
 		}
 		if (trans.contains("body=")) {
-			String body = trans.substring(trans.indexOf("body=")+5);
-			if (body.contains(separator)) {
-				body = body.substring(0,body.indexOf(separator));
+			String bod = trans.substring(trans.indexOf("body=")+5);
+			if (bod.contains(separator)) {
+				body = bod.substring(0,bod.indexOf(separator));
 			}
 			else {
-				body = body.substring(0,body.indexOf(")"));
+				body = bod.substring(0,bod.indexOf(")"));
 			}
 		}
+		if (trans.contains("regex=")) {
+			String reg = trans.substring(trans.indexOf("regex=")+6);
+			if (reg.contains(separator)) {
+				regex = reg.substring(0,reg.indexOf(separator));
+			}
+			else {
+				regex = reg.substring(0,reg.indexOf(")"));
+			}
+		}		
 		if (trans.contains("delay=")) {
 			String w = trans.substring(trans.indexOf("delay=")+6);
 			if (w.contains(separator)) {
@@ -86,7 +115,7 @@ public class RequestT extends Transition {
 			if (!param.contains("Verb=") && !param.contains("Host=") && !param.contains("Dest=") &&
 					!param.contains("delay=") && !param.contains("repetition=") && !param.contains("weight=") && 
 					!param.contains("Uri=") && !param.contains("body=") && !param.contains("start=") && 
-					!param.contains("law=")) {
+					!param.contains("law=") && !param.contains("regex=")) {
 				headers.put(param.substring(0, param.indexOf("=")), param.substring(param.indexOf("=") + 1));
 			}
 		}

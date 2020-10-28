@@ -33,6 +33,8 @@ public abstract class Transition {
 	protected String fun = "";
 	protected double start; 
 	
+	protected String regex = "";
+	
 	public String getName() {
 		return name;
 	}
@@ -132,6 +134,10 @@ public abstract class Transition {
 	
 	public String toString() {
 		return name;				
+	}
+	
+	public String getRegex() {
+		return regex;
 	}
 	
 	/**

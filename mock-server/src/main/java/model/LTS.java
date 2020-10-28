@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import model.State;
 import model.Transition;
@@ -56,7 +57,7 @@ public class LTS {
 	public State getState(String st) {
 		return states.get(st);
 	}
-	
+
 	public State getInitialState() {
 		return this.initialState;
 	}
@@ -66,7 +67,7 @@ public class LTS {
 		list.addAll(transitions.values());
 		return(list);
 	}	
-	
+
 	public Set<ResponseT> getResponses(){
 		Set<ResponseT> list = new HashSet<ResponseT>();
 		for (Transition t : transitions.values()) {
@@ -87,7 +88,7 @@ public class LTS {
 		new_initial_state.setInit();
 		this.initialState = new_initial_state;
 	}
-	
+
 	public String toString() {
 		String lts = this.getStates().size() + " states: ";
 		lts = lts + this.getStates().toString();
@@ -95,7 +96,7 @@ public class LTS {
 		lts = lts + this.getTransitions().toString();
 		return lts;		
 	}
-	
+
 	public Set<String> getInputRequests(){
 		Set<String> reqs = new HashSet<String>();
 		for (Transition t: transitions.values()) {
@@ -105,20 +106,41 @@ public class LTS {
 		}
 		return reqs;
 	}
-	
-	
+
+
 	public RequestT getReq(String url, State pos) {
 		RequestT res = null;
 		int w = -1;
+		//TODO abstraction
 		for (RequestT t : pos.getFutureInReq()) {
-			if (t.getPath().equals(url) && (t.getWeight() < w | w == -1)) {
-				res = t;
-				w = t.getWeight();
+			if (t.getPath().contains("**values**")) {
+				boolean match = true;
+				int prefix = t.getPath().indexOf("**values**");
+				int suffix = t.getPath().length() -1 - t.getPath().indexOf("**values**") + 10;
+				if (!t.getRegex().equals("")) {
+					String value = url.substring(prefix, url.length() - suffix);
+					match = Pattern.matches(t.getRegex(), value);
+				}
+				String path1 = t.getPath().replace("\\*\\*values\\*\\*", "");
+				String urlprefix = url.substring(0, prefix);
+				String urlsuffix = url.substring(url.length() - suffix);// a verif
+				String path2 = urlprefix + urlsuffix;
+				if (match && path1.equals(path2) && (t.getWeight() < w | w == -1)) {
+					res = t;
+					w = t.getWeight();
+				}
+				
+			}
+			else {
+				if (t.getPath().equals(url) && (t.getWeight() < w | w == -1)) {
+					res = t;
+					w = t.getWeight();
+				}
 			}
 		}
 		return res;
 	}
-	
+
 	/* associate all the response with their associated requests */
 	public void buildResp() {
 		for (ResponseT resp : getResponses()) {
@@ -128,7 +150,7 @@ public class LTS {
 			}
 		}
 	}
-	
+
 	public void printReq() {
 		for (Transition t : getTransitions()) {
 			if (t instanceof RequestT) {
@@ -154,5 +176,5 @@ public class LTS {
 		}
 		return null;
 	}
-	
+
 }

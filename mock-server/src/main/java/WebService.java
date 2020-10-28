@@ -134,11 +134,11 @@ public class WebService extends HttpServlet {
 								pos = dot.getInitialState();
 							}
 						}
-						else { // the request is received after the delay
+						else { // the request is received too late
 							fifo.remove(time);
 							ctx.result("request received too late.");
 							ctx.status(500);
-							LoggerFactory.getLogger("MOCK").info(String.format("request received at the wrong position in the model: " + ctx.fullUrl()));
+							LoggerFactory.getLogger("MOCK").info(String.format("request received too late: " + ctx.fullUrl()));
 						}
 					}
 					else { // the request can be the start of a new session, check from the initial state

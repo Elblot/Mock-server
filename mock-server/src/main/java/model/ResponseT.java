@@ -12,14 +12,34 @@ public class ResponseT extends Transition {
 	public ResponseT(State src, String trans, State dst) {
 		name = trans;
 		body = trans.substring(trans.indexOf("body=")+5);
-		body = body.substring(0,body.indexOf(separator));
+		if (body.contains(separator)) {
+			body = body.substring(0,body.indexOf(separator));
+		}
+		else {
+			body = body.substring(0,body.indexOf(")"));
+		}
 		String st = trans.substring(trans.indexOf("status=")+7);
-		st = st.substring(0,st.indexOf(separator));
+		if (st.contains(separator)) {
+			st = st.substring(0,st.indexOf(separator));
+		}
+		else {
+			st = st.substring(0,st.indexOf(")"));
+		}
 		status = Integer.parseInt(st);
 		from = trans.substring(trans.indexOf("Host=")+5);
-		from = from.substring(0,from.indexOf(separator));
+		if (from.contains(separator)) {
+			from = from.substring(0,from.indexOf(separator));
+		}
+		else {
+			from = from.substring(0,from.indexOf(")"));
+		}
 		to = trans.substring(trans.indexOf("Dest=")+5);
-		to = to.substring(0,to.indexOf(separator));
+		if (to.contains(separator)) {
+			to = to.substring(0,to.indexOf(separator));
+		}
+		else {
+			to = to.substring(0,to.indexOf(")"));
+		}
 		if (trans.contains("weight=")) {
 			String w = trans.substring(trans.indexOf("weight=")+7);
 			if (w.contains(separator)) {
@@ -33,6 +53,15 @@ public class ResponseT extends Transition {
 		else {
 			weight = 0;			
 		}
+		if (trans.contains("regex=")) {
+			String reg = trans.substring(trans.indexOf("regex=")+6);
+			if (reg.contains(separator)) {
+				regex = reg.substring(0,reg.indexOf(separator));
+			}
+			else {
+				regex = reg.substring(0,reg.indexOf(")"));
+			}
+		}	
 		if (trans.contains("repetition=")) {
 			String w = trans.substring(trans.indexOf("reptition=")+10);
 			if (w.contains(separator)) {
