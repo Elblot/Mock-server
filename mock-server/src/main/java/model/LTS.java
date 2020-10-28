@@ -133,11 +133,13 @@ public class LTS {
 				if (url.length() > prefix + suffix) {
 					String urlprefix = url.substring(0, prefix);
 					String urlsuffix = url.substring(url.length() - suffix - 1);
+					String path2 = urlprefix + urlsuffix;
 					System.out.println("url: " + url + "\n"
 							+ "path: " + t.getPath() + "\n"
 							+ "prefix:" + urlprefix + "\n"
-							+ "suffix:" + urlsuffix);
-					String path2 = urlprefix + urlsuffix;
+							+ "suffix:" + urlsuffix +"\n"
+							+ "path1: " + t.getPath() + "\n"
+							+ "path2: " + t.getPath());
 					if (match && path1.equals(path2) && (t.getWeight() < w | w == -1)) {
 						res = t;
 						w = t.getWeight();
