@@ -1,4 +1,5 @@
 import model.RequestT;
+import model.ResponseT;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -7,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 
 public class OutputRequest extends Thread {
@@ -65,7 +67,7 @@ public class OutputRequest extends Thread {
 						if(!s2.equals(res.header(s))) doesHeadersMatch[0] = false;
 					});
 					match = (doesHeadersMatch[0]) && match;
-					if(!Objects.equals(req.getResponse().getBody().replaceAll("\\s",""), res.body().string().replaceAll("\\s",""))) match = false;
+					if(!RespEquals(req.getResponse(), res.body().string().replaceAll("\\s",""))) match = false;
 					result = match? "Response match rule": "Response doesn't match rule";
 					if (match) {
 						LoggerFactory.getLogger("MOCK").info(String.format("Request: %s %s -- %d (%s)", request.method(), request.url(), res.code(), result));
@@ -74,9 +76,43 @@ public class OutputRequest extends Thread {
 						LoggerFactory.getLogger("MOCK").info(String.format("Request: %s %s -- ERROR, waited: %s ; received : %s", request.method(), request.url(), req.getResponse().toString(), res.toString()));
 					}
 				}
+				else {
+					LoggerFactory.getLogger("MOCK").info(String.format("Request: %s %s -- %d (%s)", request.method(), request.url(), result));
+				}
 			} catch (IOException e) {
 				LoggerFactory.getLogger("MOCK").error(String.format("Request: %s %s -- ERROR %s", request.method(), request.url(), e.getClass().getSimpleName()));
 			}
 		}).run();//.start();
 	}
+	
+	private boolean RespEquals(ResponseT resp1, String st2) {
+		String st1 = resp1.getBody().replaceAll("\\s","");
+		if (st1.contains("**values**")) {
+			boolean match = true;
+			int prefix = st1.indexOf("**values**");
+			int suffix = st1.length() - 1 - st1.indexOf("**values**") - 10;
+			if (!resp1.getRegex().equals("")) {
+				if (st2.length() > prefix + suffix) {
+					String value = st2.substring(prefix, st2.length() - suffix - 1);	
+					match = Pattern.matches(resp1.getRegex(), value);
+				}
+			}
+			String path1 = st1.replaceAll("\\*\\*values\\*\\*", "");
+			if (st2.length() > prefix + suffix) {
+				String urlprefix = st2.substring(0, prefix);
+				String urlsuffix = st2.substring(st2.length() - suffix - 1);
+				String path2 = urlprefix + urlsuffix;
+				if (match && path1.equals(path2)) {
+					return true;
+				}
+			}				
+		}
+		else {
+			if (st1.equals(st2)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 }

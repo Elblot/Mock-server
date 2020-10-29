@@ -111,7 +111,7 @@ public class LTS {
 	public RequestT getReq(String url, State pos) {
 		RequestT res = null;
 		int w = -1;
-		//TODO abstraction
+		//abstraction
 		for (RequestT t : pos.getFutureInReq()) {
 			if (t.getPath().contains("**values**")) {
 				boolean match = true;

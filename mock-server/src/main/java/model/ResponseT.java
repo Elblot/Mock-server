@@ -119,7 +119,7 @@ public class ResponseT extends Transition {
 			if (!param.contains("Host=") && !param.contains("Dest=") &&
 				!param.contains("delay=") && !param.contains("repetition=") && !param.contains("weight=") && 
 				!param.contains("status=") && !param.contains("body=") && !param.contains("start=") &&
-				!param.contains("law=")) {
+				!param.contains("law=") && !param.contains("regex=")) {
 				headers.put(param.substring(0, param.indexOf("=")), param.substring(param.indexOf("=") + 1));
 			}
 		}
