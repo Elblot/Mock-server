@@ -129,7 +129,7 @@ public class ResponseT extends Transition {
 	
 	public String getBody() {
 		if (isOutput() && body.contains("**values**")) {
-			System.out.println("processing lax in response");
+			System.out.println("processing law in response");
 			String body2 = body.replaceAll("\\*\\*values\\*\\*", Double.toString(start));
 			ApplyLaw();
 			return body2;

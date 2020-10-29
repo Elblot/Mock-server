@@ -274,7 +274,7 @@ public class WebService extends HttpServlet {
 		RequestT output = pos.getOutReq(lastAction);
 		if (output != null) {
 			output.incWeight();
-			System.out.println(output.toString());
+			//System.out.println(output.toString());
 			OutputRequest send = new OutputRequest(output);
 			lastAction = System.currentTimeMillis();;
 			send.run();
@@ -294,7 +294,7 @@ public class WebService extends HttpServlet {
 
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		System.out.println(req.toString());
+		//System.out.println(req.toString());
 		app.servlet().service(req, resp);
 	}
 }
