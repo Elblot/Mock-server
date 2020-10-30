@@ -4,6 +4,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
+
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
@@ -59,17 +61,20 @@ public class OutputRequest extends Thread {
 		new Thread(() -> {
 			try (Response res = client.newCall(request).execute()) {
 				String result = "no response found in the model";
+				int code = res.code();
+				//String head = res.header();
+				ResponseBody body = res.body();
 				if(!req.getResponses().isEmpty()) {
 					boolean b = true;
 					for (ResponseT r: req.getResponses()) {
 						match = true;
-						if(r.getStatus() != res.code()) match = false;
+						if(r.getStatus() != code) match = false;
 						final boolean[] doesHeadersMatch = {true};
 						r.getHeaders().forEach((s, s2) -> {
 							if(!s2.equals(res.header(s))) doesHeadersMatch[0] = false;
 						});
 						match = (doesHeadersMatch[0]) && match;
-						if(!RespEquals(r, res.body().string().replaceAll("\\s",""))) match = false;
+						if(!RespEquals(r, body.string().replaceAll("\\s",""))) match = false;
 						result = match? "Response match rule": "Response doesn't match rule";
 						if (match) {
 							LoggerFactory.getLogger("MOCK").info(String.format("Request: %s %s -- %d (%s)", request.method(), request.url(), res.code(), result));
