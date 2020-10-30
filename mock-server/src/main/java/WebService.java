@@ -109,6 +109,8 @@ public class WebService extends HttpServlet {
 							lastAction = now;
 							while (runMock(true) == true); //if nested requests
 							ResponseT resp = t.getMinResponse();
+							System.out.println("req: " + t.toString() +
+									"\n resp: " + resp);
 							lastAction = System.currentTimeMillis();
 							ctx.result(resp.getBody());
 							ctx.status(resp.getStatus());
