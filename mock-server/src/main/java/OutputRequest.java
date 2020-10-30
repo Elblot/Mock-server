@@ -59,21 +59,27 @@ public class OutputRequest extends Thread {
 		new Thread(() -> {
 			try (Response res = client.newCall(request).execute()) {
 				String result = "no response found in the model";
-				if(req.getResponse() != null) {
-					match = true;
-					if(req.getResponse().getStatus() != res.code()) match = false;
-					final boolean[] doesHeadersMatch = {true};
-					req.getResponse().getHeaders().forEach((s, s2) -> {
-						if(!s2.equals(res.header(s))) doesHeadersMatch[0] = false;
-					});
-					match = (doesHeadersMatch[0]) && match;
-					if(!RespEquals(req.getResponse(), res.body().string().replaceAll("\\s",""))) match = false;
-					result = match? "Response match rule": "Response doesn't match rule";
-					if (match) {
-						LoggerFactory.getLogger("MOCK").info(String.format("Request: %s %s -- %d (%s)", request.method(), request.url(), res.code(), result));
+				if(!req.getResponses().isEmpty()) {
+					boolean b = true;
+					for (ResponseT r: req.getResponses()) {
+						match = true;
+						if(r.getStatus() != res.code()) match = false;
+						final boolean[] doesHeadersMatch = {true};
+						r.getHeaders().forEach((s, s2) -> {
+							if(!s2.equals(res.header(s))) doesHeadersMatch[0] = false;
+						});
+						match = (doesHeadersMatch[0]) && match;
+						if(!RespEquals(r, res.body().string().replaceAll("\\s",""))) match = false;
+						result = match? "Response match rule": "Response doesn't match rule";
+						if (match) {
+							LoggerFactory.getLogger("MOCK").info(String.format("Request: %s %s -- %d (%s)", request.method(), request.url(), res.code(), result));
+							b = false;
+							r.setProc(true);
+							break;
+						}
 					}
-					else {
-						LoggerFactory.getLogger("MOCK").info(String.format("Request: %s %s -- ERROR, waited: %s ; received : %s", request.method(), request.url(), req.getResponse().toString(), res.toString()));
+					if (b){
+						LoggerFactory.getLogger("MOCK").info(String.format("Request: %s %s -- ERROR, waited: %s ; received : %s", request.method(), request.url(), req.getResponses().toString(), res.toString()));
 					}
 				}
 				else {
@@ -84,7 +90,7 @@ public class OutputRequest extends Thread {
 			}
 		}).run();//.start();
 	}
-	
+
 	private boolean RespEquals(ResponseT resp1, String st2) {
 		String st1 = resp1.getBody().replaceAll("\\s","");
 		if (st1.contains("**values**")) {
@@ -114,5 +120,5 @@ public class OutputRequest extends Thread {
 		}
 		return false;
 	}
-	
+
 }

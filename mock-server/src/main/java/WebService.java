@@ -108,7 +108,7 @@ public class WebService extends HttpServlet {
 							pos = t.getTarget();
 							lastAction = now;
 							while (runMock(true) == true); //if nested requests
-							ResponseT resp = t.getResponse();
+							ResponseT resp = t.getMinResponse();
 							lastAction = System.currentTimeMillis();
 							ctx.result(resp.getBody());
 							ctx.status(resp.getStatus());
@@ -152,7 +152,7 @@ public class WebService extends HttpServlet {
 							pos = t2.getTarget();
 							lastAction = System.currentTimeMillis();
 							while (runMock(true) == true);//if nested requests
-							ResponseT resp = t2.getResponse();
+							ResponseT resp = t2.getMinResponse();
 							lastAction = System.currentTimeMillis();
 							ctx.result(resp.getBody());
 							ctx.status(resp.getStatus());
@@ -254,9 +254,11 @@ public class WebService extends HttpServlet {
 	 *  **/
 	private boolean runMock(boolean passOutResp) throws InterruptedException {
 		// received response are already automatically processed, skip them in the model
-		if (!pos.isInit() && pos.getInResp() != null) {
+		if (!pos.isInit() && pos.getInRespProc() != null) {
+			ResponseT r = pos.getInRespProc();
+			r.setProc(false);
 			long now = System.currentTimeMillis();
-			pos = pos.getInResp().getTarget();
+			pos = r.getTarget();
 			lastAction = now;
 			return true;
 		}

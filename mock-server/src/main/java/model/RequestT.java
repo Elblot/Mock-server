@@ -8,9 +8,10 @@ public class RequestT extends Transition {
 
 	private String Verb;
 	private String Uri;
-	private ResponseT resp;
+	private HashSet<ResponseT> resp;
 
 	public RequestT(State src, String trans, State dst) {
+		resp = new HashSet<ResponseT>();
 		name = trans;
 		Verb = trans.substring(trans.indexOf("Verb=")+5);
 		if (Verb.contains(separator)) {
@@ -168,12 +169,20 @@ public class RequestT extends Transition {
 	/**
 	 * @return the waited response associated.
 	 */
-	public ResponseT getResponse() {
+	public HashSet<ResponseT> getResponses() {
 		return resp;
 	}
 
-	public void setResponse(ResponseT r) {
-		resp = r;
+	public void addResponse(ResponseT r) {
+		resp.add(r);
+	}
+	
+	public ResponseT getMinResponse() {
+		int w = -1;
+		for (ResponseT r: resp) {
+			
+		}
+		return null;
 	}
 
 	/**

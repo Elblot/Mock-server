@@ -171,11 +171,11 @@ public class State {
 	/**
 	 * @return the next received response from this state with the minimal weight. 
 	 */
-	public ResponseT getInResp() {
+	public ResponseT getInRespProc() {
 		ResponseT res = null;
 		int weight = -1;
 		for (Transition t: getSuccesseurs()) {
-			if (t instanceof ResponseT && t.isInput() && (weight == -1 || weight > t.getWeight())) {
+			if (t instanceof ResponseT && t.isInput() && ((ResponseT) t).isProc() && (weight == -1 || weight > t.getWeight())) {
 				res = (ResponseT) t;
 			}
 		}

@@ -149,7 +149,7 @@ public class LTS {
 		for (ResponseT resp : getResponses()) {
 			//System.out.println(resp + "is a response");
 			for (RequestT req : resp.getLastRequests()) {
-				req.setResponse(resp);
+				req.addResponse(resp);
 			}
 		}
 	}
@@ -159,7 +159,7 @@ public class LTS {
 			if (t instanceof RequestT) {
 				System.out.println(t + "\n"
 						+ "from:" + t.getFrom() + ", to:" + t.getTo()
-						+ " resp : " + ((RequestT) t).getResponse());
+						+ " resp : " + ((RequestT) t).getResponses());
 			}
 		}
 	}

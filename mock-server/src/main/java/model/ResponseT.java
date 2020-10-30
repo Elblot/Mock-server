@@ -8,8 +8,10 @@ public class ResponseT extends Transition {
 	
 	private int status;
 	private String content;
+	private boolean proc;
 	
 	public ResponseT(State src, String trans, State dst) {
+		proc = false;
 		name = trans;
 		body = trans.substring(trans.indexOf("body=")+5);
 		if (body.contains(separator)) {
@@ -145,6 +147,14 @@ public class ResponseT extends Transition {
 	
 	public int getStatus() {
 		return status;
+	}
+	
+	public boolean isProc() {
+		return proc;
+	}
+	
+	public void setProc(boolean b) {
+		proc = b;
 	}
 	
 	public void setStatus(int st) {
