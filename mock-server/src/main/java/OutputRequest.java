@@ -63,7 +63,7 @@ public class OutputRequest extends Thread {
 				String result = "no response found in the model";
 				int code = res.code();
 				//String head = res.header();
-				ResponseBody body = res.body();
+				String body = res.body().string();
 				if(!req.getResponses().isEmpty()) {
 					boolean b = true;
 					for (ResponseT r: req.getResponses()) {
@@ -74,7 +74,7 @@ public class OutputRequest extends Thread {
 							if(!s2.equals(res.header(s))) doesHeadersMatch[0] = false;
 						});
 						match = (doesHeadersMatch[0]) && match;
-						if(!RespEquals(r, body.string().replaceAll("\\s",""))) match = false;
+						if(!RespEquals(r, body.replaceAll("\\s",""))) match = false;
 						result = match? "Response match rule": "Response doesn't match rule";
 						if (match) {
 							LoggerFactory.getLogger("MOCK").info(String.format("Request: %s %s -- %d (%s)", request.method(), request.url(), res.code(), result));
