@@ -179,10 +179,13 @@ public class RequestT extends Transition {
 	
 	public ResponseT getMinResponse() {
 		int w = -1;
+		ResponseT res = null;
 		for (ResponseT r: resp) {
-			
+			if (w == -1 || w > r.getWeight()) {
+				res = r;
+			}
 		}
-		return null;
+		return res;
 	}
 
 	/**
