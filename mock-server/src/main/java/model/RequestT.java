@@ -1,5 +1,7 @@
 package model;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -10,6 +12,7 @@ public class RequestT extends Transition {
 	private String Uri;
 	private HashSet<ResponseT> resp;
 
+	@SuppressWarnings("unchecked")
 	public RequestT(State src, String trans, State dst) {
 		resp = new HashSet<ResponseT>();
 		name = trans;
@@ -69,16 +72,45 @@ public class RequestT extends Transition {
 		}
 		if (trans.contains("start=") && trans.contains("fun=")) {
 			String st = trans.substring(trans.indexOf("start=")+6);
-			st = st.substring(0,st.indexOf(separator));
-			start = Double.parseDouble(st);
-			fun = trans.substring(trans.indexOf("fun=")+4);
-			if (fun.contains(separator)) {
-				fun = fun.substring(0,fun.indexOf(separator));
+			if (st.contains(separator)) {
+				st = st.substring(0,st.indexOf(separator));
 			}
 			else {
-				fun = fun.substring(0,fun.indexOf(")"));
+				st = st.substring(0,st.indexOf(")"));
+			}
+			String[] sts = st.split(",");
+			start = new ArrayList<Double>();
+			for (String s: sts) {
+				System.out.println(s);
+				start.add(Double.parseDouble(s));
+			}
+			values = (ArrayList<Double>) start.clone();
+			String f = trans.substring(trans.indexOf("fun=")+4);
+			if (f.contains(separator)) {
+				f = f.substring(0,f.indexOf(separator));
+			}
+			else {
+				f = f.substring(0,f.indexOf(")"));
+			}
+			fun = new ArrayList<String>();
+			for (String s : f.split(",")) {
+				fun.add(s);
 			}
 		}
+		if (trans.contains("step=")){
+			String st = trans.substring(trans.indexOf("step=")+5);
+			if (st.contains(separator)) {
+				st = st.substring(0,st.indexOf(separator));
+			}
+			else {
+				st = st.substring(0,st.indexOf(")"));
+			}
+			String[] sts = st.split(",");
+			step = new ArrayList<Double>();
+			for (String s: sts) {
+				step.add(Double.parseDouble(s));
+			}
+		}		
 		if (trans.contains("body=")) {
 			String bod = trans.substring(trans.indexOf("body=")+5);
 			if (bod.contains(separator)) {
@@ -116,7 +148,7 @@ public class RequestT extends Transition {
 			if (!param.contains("Verb=") && !param.contains("Host=") && !param.contains("Dest=") &&
 					!param.contains("delay=") && !param.contains("repetition=") && !param.contains("weight=") && 
 					!param.contains("Uri=") && !param.contains("body=") && !param.contains("start=") && 
-					!param.contains("law=") && !param.contains("regex=")) {
+					!param.contains("fun=") && !param.contains("regex=") && !param.contains("step=")) {
 				headers.put(param.substring(0, param.indexOf("=")), param.substring(param.indexOf("=") + 1));
 			}
 		}
@@ -124,7 +156,7 @@ public class RequestT extends Transition {
 		source = src;
 		target = dst;
 	}
-
+	
 	public String getVerb() {
 		return Verb;
 	}
@@ -135,8 +167,11 @@ public class RequestT extends Transition {
 
 	public String getUri() {
 		if (isOutput() && Uri.contains("**values**")) {
-			String Uri2 = Uri.replaceAll("\\*\\*values\\*\\*", Double.toString(start));
 			ApplyLaw();
+			String Uri2 = Uri;
+			for (int i = 0; i < values.size(); ++i) {
+				Uri2 = Uri2.replaceFirst("\\*\\*values\\*\\*", Double.toString(values.get(i)));
+			}
 			return Uri2;
 		}
 		else {
@@ -176,7 +211,7 @@ public class RequestT extends Transition {
 	public void addResponse(ResponseT r) {
 		resp.add(r);
 	}
-	
+
 	public ResponseT getMinResponse() {
 		int w = -1;
 		ResponseT res = null;

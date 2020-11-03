@@ -1,5 +1,7 @@
 package model;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -10,6 +12,7 @@ public class ResponseT extends Transition {
 	private String content;
 	private boolean proc;
 	
+	@SuppressWarnings("unchecked")
 	public ResponseT(State src, String trans, State dst) {
 		proc = false;
 		name = trans;
@@ -105,23 +108,51 @@ public class ResponseT extends Transition {
 		}	
 		if (trans.contains("start=") && trans.contains("fun=")) {
 			String sta = trans.substring(trans.indexOf("start=")+6);
-			sta = sta.substring(0,sta.indexOf(separator));
-			start = Double.parseDouble(sta);
-			fun = trans.substring(trans.indexOf("fun=")+4);
-			if (fun.contains(separator)) {
-				fun = fun.substring(0,fun.indexOf(separator));
+			if (sta.contains(separator)) {
+				sta = sta.substring(0,sta.indexOf(separator));
 			}
 			else {
-				fun = fun.substring(0,fun.indexOf(")"));
+				sta = sta.substring(0,sta.indexOf(")"));
+			}
+			String[] sts = sta.split(",");
+			start = new ArrayList<Double>();
+			for (String s: sts) {
+				start.add(Double.parseDouble(s));
+			}
+			values = (ArrayList<Double>) start.clone();
+			String f = trans.substring(trans.indexOf("fun=")+4);
+			if (f.contains(separator)) {
+				f = f.substring(0,f.indexOf(separator));
+			}
+			else {
+				f = f.substring(0,f.indexOf(")"));
+			}
+			fun = new ArrayList<String>();
+			for (String s : f.split(",")) {
+				fun.add(s);
 			}
 		}
+		if (trans.contains("step=")){
+			String ste = trans.substring(trans.indexOf("step=")+5);
+			if (ste.contains(separator)) {
+				ste = ste.substring(0,ste.indexOf(separator));
+			}
+			else {
+				ste = ste.substring(0,ste.indexOf(")"));
+			}
+			String[] sts = ste.split(",");
+			step = new ArrayList<Double>();
+			for (String s: sts) {
+				step.add(Double.parseDouble(s));
+			}
+		}		
 		headers = new HashMap<String,String>();
 		String[] e = trans.substring(trans.indexOf("("), trans.length() - 1).split(separator);
 		for (String param: e) {
 			if (!param.contains("Host=") && !param.contains("Dest=") &&
 				!param.contains("delay=") && !param.contains("repetition=") && !param.contains("weight=") && 
 				!param.contains("status=") && !param.contains("body=") && !param.contains("start=") &&
-				!param.contains("law=") && !param.contains("regex=")) {
+				!param.contains("law=") && !param.contains("regex=") && !param.contains("step=")) {
 				headers.put(param.substring(0, param.indexOf("=")), param.substring(param.indexOf("=") + 1));
 			}
 		}
@@ -131,9 +162,11 @@ public class ResponseT extends Transition {
 	
 	public String getBody() {
 		if (isOutput() && body.contains("**values**")) {
-			System.out.println("processing law in response");
-			String body2 = body.replaceAll("\\*\\*values\\*\\*", Double.toString(start));
 			ApplyLaw();
+			String body2 = body;
+			for (int i =0; i < values.size(); ++i) {
+				body2 = body2.replaceFirst("\\*\\*values\\*\\*", Double.toString(values.get(i)));
+			}
 			return body2;
 		}
 		else {
