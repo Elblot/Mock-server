@@ -229,6 +229,7 @@ public class RequestT extends Transition {
 				res = r;
 			}
 		}
+		res.incWeight();
 		return res;
 	}
 
