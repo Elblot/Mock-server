@@ -150,7 +150,11 @@ public class OutputRequest extends Thread {
 		res = res.replaceAll("\\[", "\\[");
 		res = res.replaceAll("\\]", "\\]");
 		res = res.replaceAll("\\.", "\\.");
-		res = res.replaceAll("\\?", "\\.");		
+		res = res.replaceAll("\\?", "\\?");		
+		res = res.replaceAll("\\{", "\\{");
+		res = res.replaceAll("\\}", "\\}");
+		res = res.replaceAll("\\:", "\\:");
+		res = res.replaceAll("\\\"", "\\\"");
 		return res;
 	}
 	

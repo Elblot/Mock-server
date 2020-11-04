@@ -174,10 +174,13 @@ public class LTS {
 		res = res.replaceAll("\\[", "\\[");
 		res = res.replaceAll("\\]", "\\]");
 		res = res.replaceAll("\\.", "\\.");
-		res = res.replaceAll("\\?", "\\.");		
+		res = res.replaceAll("\\?", "\\?");		
+		res = res.replaceAll("\\{", "\\{");
+		res = res.replaceAll("\\}", "\\}");
+		res = res.replaceAll("\\:", "\\:");
+		res = res.replaceAll("\\\"", "\\\"");
 		return res;
 	}
-	
 	/* associate all the response with their associated requests */
 	public void buildResp() {
 		for (ResponseT resp : getResponses()) {
