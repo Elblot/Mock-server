@@ -98,7 +98,23 @@ public class OutputRequest extends Thread {
 
 	private boolean RespEquals(ResponseT resp1, String st2) {
 		String st1 = resp1.getBody().replaceAll("\\s","");
-		if (st1.contains("**values**")) {
+		if (st1.contains("**values**")){ 	
+			String r = "^(" + st1;
+			for (int i = 0; i < resp1.getRegex().size(); ++i) {
+				r = r.replaceFirst("\\*\\*values\\*\\*", ")" + resp1.getRegex().get(i) + "(");
+			}
+			r = r + ")$";
+			if (Pattern.matches(r, st2)) {
+				return true;
+			}
+		}
+		else {
+			if (st1.equals(st2)){
+				return true;
+			}
+		}		
+		/*
+		if (st1.contains("**values**")) {//while
 			boolean match = true;
 			int prefix = st1.indexOf("**values**");
 			int suffix = st1.length() - 1 - st1.indexOf("**values**") - 10;
@@ -122,7 +138,7 @@ public class OutputRequest extends Thread {
 			if (st1.equals(st2)) {
 				return true;
 			}
-		}
+		}*/
 		return false;
 	}
 

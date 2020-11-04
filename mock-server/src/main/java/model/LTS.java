@@ -113,33 +113,55 @@ public class LTS {
 		int w = -1;
 		//abstraction
 		for (RequestT t : pos.getFutureInReq()) {
-			if (t.getPath().contains("**values**")) {
-				boolean match = true;
-				int prefix = t.getPath().indexOf("**values**");
-				int suffix = t.getPath().length() - 1 - t.getPath().indexOf("**values**") - 10;
-				if (!t.getRegex().equals("")) {
-					if (url.length() > prefix + suffix) {
-						String value = url.substring(prefix, url.length() - suffix - 1);	
-						match = Pattern.matches(t.getRegex(), value);
-					}
+			if (t.getPath().contains("**values**")){ 	
+				String r = "^(" + t.getPath();
+				for (int i = 0; i < t.getRegex().size(); ++i) {
+					r = r.replaceFirst("\\*\\*values\\*\\*", ")" + t.getRegex().get(i) + "(");
 				}
-				String path1 = t.getPath().replaceAll("\\*\\*values\\*\\*", "");
-				if (url.length() > prefix + suffix) {
-					String urlprefix = url.substring(0, prefix);
-					String urlsuffix = url.substring(url.length() - suffix - 1);
-					String path2 = urlprefix + urlsuffix;
-					if (match && path1.equals(path2) && (t.getWeight() < w | w == -1)) {
-						res = t;
-						w = t.getWeight();
-					}
-				}				
-			}
-			else {
-				if (t.getPath().equals(url) && (t.getWeight() < w | w == -1)) {
+				r = r + ")$";
+				if (Pattern.matches(r, url) && (t.getWeight() < w | w == -1)) {
 					res = t;
 					w = t.getWeight();
 				}
 			}
+			else {
+				if (t.getPath().equals(url) && (t.getWeight() < w | w == -1)){
+					res = t;
+					w = t.getWeight();
+				}
+			}
+
+
+			/*while (path1.contains("**values**")) { //todo uilt a regex ^(prefix reg1 next reg2 suffix)$
+				if (i >= t.getRegex().size()) {
+					System.err.println("Some regex are missing, we found more varaible **values** than regex.");
+				}
+				int prefix = path1.indexOf("**values**");
+				int suffix = path1.length() - 1 - path1.indexOf("**values**") - 10;
+				if (path2.length() > prefix + suffix) {
+					String value = path2.substring(prefix, path2.length() - suffix - 1);	
+					match = Pattern.matches(t.getRegex().get(i), value);
+				}
+				path1 = path1.replaceFirst("\\*\\*values\\*\\*", "");
+				if (path2.length() > prefix + suffix) {
+					String urlprefix = path2.substring(0, prefix);
+					String urlsuffix = path2.substring(path2.length() - suffix - 1);
+					path2 = urlprefix + urlsuffix;
+					if (!match){ // && path1.equals(path2) && (t.getWeight() < w | w == -1))) {
+						break;
+						//res = t;
+						//w = t.getWeight();
+					}
+				}	
+				++i;
+			}
+
+			//			if (!t.getPath().contains("**values**")){
+			if (match && path1.equals(path2) && (t.getWeight() < w | w == -1)) {
+				res = t;
+				w = t.getWeight();
+			}
+			//			}*/
 		}
 		return res;
 	}

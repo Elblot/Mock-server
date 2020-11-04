@@ -38,7 +38,7 @@ public abstract class Transition {
 	protected ArrayList<Double> step;
 	protected ArrayList<Double> values;
 
-	protected String regex = "";
+	protected ArrayList<String> regex;
 
 	public String getName() {
 		return name;
@@ -141,7 +141,7 @@ public abstract class Transition {
 		return name;				
 	}
 
-	public String getRegex() {
+	public ArrayList<String> getRegex() {
 		return regex;
 	}
 

@@ -61,10 +61,14 @@ public class ResponseT extends Transition {
 		if (trans.contains("regex=")) {
 			String reg = trans.substring(trans.indexOf("regex=")+6);
 			if (reg.contains(separator)) {
-				regex = reg.substring(0,reg.indexOf(separator));
+				reg = reg.substring(0,reg.indexOf(separator));
 			}
 			else {
-				regex = reg.substring(0,reg.indexOf(")"));
+				reg = reg.substring(0,reg.indexOf(")"));
+			}
+			regex = new ArrayList<String>();
+			for (String r: reg.split(",")) {
+				regex.add(r);
 			}
 		}	
 		if (trans.contains("repetition=")) {
