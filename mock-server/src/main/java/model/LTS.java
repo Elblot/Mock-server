@@ -115,6 +115,8 @@ public class LTS {
 		for (RequestT t : pos.getFutureInReq()) {
 			if (t.getPath().contains("**values**")){ 	
 				String r = "^(" + cleanReg(t.getPath());
+				System.out.println(r);
+				System.out.println(url);
 				for (int i = 0; i < t.getRegex().size(); ++i) {
 					r = r.replaceFirst("\\*\\*values\\*\\*", ")" + t.getRegex().get(i) + "(");
 				}

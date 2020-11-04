@@ -100,6 +100,8 @@ public class OutputRequest extends Thread {
 		String st1 = resp1.getBody().replaceAll("\\s","");
 		if (st1.contains("**values**")){ 	
 			String r = "^(" + cleanReg(st1);
+			System.out.println(r);
+			System.out.println(st2);
 			for (int i = 0; i < resp1.getRegex().size(); ++i) {
 				r = r.replaceFirst("\\*\\*values\\*\\*", ")" + resp1.getRegex().get(i) + "(");
 			}
@@ -151,10 +153,14 @@ public class OutputRequest extends Thread {
 		res = res.replaceAll("\\]", "\\]");
 		res = res.replaceAll("\\.", "\\.");
 		res = res.replaceAll("\\?", "\\?");		
-		res = res.replaceAll("\\{", "\\{");
-		res = res.replaceAll("\\}", "\\}");
+		res = res.replaceAll("\\{", "\\\\{");
+		res = res.replaceAll("\\}", "\\\\}");
+		res = res.replaceAll("\\*", "\\*");
+		res = res.replaceAll("\\|", "\\|");
+		res = res.replaceAll("\\+", "\\+");
 		res = res.replaceAll("\\:", "\\:");
-		res = res.replaceAll("\\\"", "\\\"");
+		res = res.replaceAll("\\$", "\\$");
+		res = res.replaceAll("\\^", "\\^");
 		return res;
 	}
 	
