@@ -123,6 +123,9 @@ public class LTS {
 					res = t;
 					w = t.getWeight();
 				}
+				System.out.println("regex= " + r + "\n" +
+						"url= " + url);
+				
 			}
 			else {
 				if (t.getPath().equals(url) && (t.getWeight() < w | w == -1)){
