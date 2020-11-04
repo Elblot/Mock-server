@@ -103,7 +103,9 @@ public class WebService extends HttpServlet {
 								// if several possible, only one processed at a time (the first received)
 								// only possible for initial state
 								//TODO case of indeterministic inputs, and both received at the same times.
+								System.out.println("start waiting");
 								this.wait();
+								System.out.println("stop waiting");
 							}						
 							pos = t.getTarget();
 							lastAction = now;

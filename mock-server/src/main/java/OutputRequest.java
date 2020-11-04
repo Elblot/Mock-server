@@ -155,7 +155,7 @@ public class OutputRequest extends Thread {
 		res = res.replaceAll("\\?", "\\\\?");		
 		res = res.replaceAll("\\{", "\\\\{");
 		res = res.replaceAll("\\}", "\\\\}");
-		res = res.replaceAll("\\*", "\\\\*");
+		//res = res.replaceAll("\\*", "\\\\*"); block the detection of **values**
 		res = res.replaceAll("\\|", "\\\\|");
 		res = res.replaceAll("\\+", "\\\\+");
 		res = res.replaceAll("\\:", "\\:");
