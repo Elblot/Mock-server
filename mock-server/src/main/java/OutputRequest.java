@@ -146,21 +146,21 @@ public class OutputRequest extends Thread {
 
 	private static String cleanReg(String reg) {
 		String res = reg;
-		res = res.replaceAll("\\&", "\\&");
-		res = res.replaceAll("\\(", "\\(");
-		res = res.replaceAll("\\)", "\\)");
-		res = res.replaceAll("\\[", "\\[");
-		res = res.replaceAll("\\]", "\\]");
-		res = res.replaceAll("\\.", "\\.");
-		res = res.replaceAll("\\?", "\\?");		
+		res = res.replaceAll("\\&", "\\\\&");
+		res = res.replaceAll("\\(", "\\\\(");
+		res = res.replaceAll("\\)", "\\\\)");
+		res = res.replaceAll("\\[", "\\\\[");
+		res = res.replaceAll("\\]", "\\\\]");
+		res = res.replaceAll("\\.", "\\\\.");
+		res = res.replaceAll("\\?", "\\\\?");		
 		res = res.replaceAll("\\{", "\\\\{");
 		res = res.replaceAll("\\}", "\\\\}");
-		res = res.replaceAll("\\*", "\\*");
-		res = res.replaceAll("\\|", "\\|");
-		res = res.replaceAll("\\+", "\\+");
+		res = res.replaceAll("\\*", "\\\\*");
+		res = res.replaceAll("\\|", "\\\\|");
+		res = res.replaceAll("\\+", "\\\\+");
 		res = res.replaceAll("\\:", "\\:");
-		res = res.replaceAll("\\$", "\\$");
-		res = res.replaceAll("\\^", "\\^");
+		res = res.replaceAll("\\$", "\\\\$");
+		res = res.replaceAll("\\^", "\\\\^");
 		return res;
 	}
 	

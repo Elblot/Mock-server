@@ -170,19 +170,24 @@ public class LTS {
 
 	private static String cleanReg(String reg) {
 		String res = reg;
-		res = res.replaceAll("\\&", "\\&");
-		res = res.replaceAll("\\(", "\\(");
-		res = res.replaceAll("\\)", "\\)");
-		res = res.replaceAll("\\[", "\\[");
-		res = res.replaceAll("\\]", "\\]");
-		res = res.replaceAll("\\.", "\\.");
-		res = res.replaceAll("\\?", "\\?");		
-		res = res.replaceAll("\\{", "\\{");
-		res = res.replaceAll("\\}", "\\}");
+		res = res.replaceAll("\\&", "\\\\&");
+		res = res.replaceAll("\\(", "\\\\(");
+		res = res.replaceAll("\\)", "\\\\)");
+		res = res.replaceAll("\\[", "\\\\[");
+		res = res.replaceAll("\\]", "\\\\]");
+		res = res.replaceAll("\\.", "\\\\.");
+		res = res.replaceAll("\\?", "\\\\?");		
+		res = res.replaceAll("\\{", "\\\\{");
+		res = res.replaceAll("\\}", "\\\\}");
+		res = res.replaceAll("\\*", "\\\\*");
+		res = res.replaceAll("\\|", "\\\\|");
+		res = res.replaceAll("\\+", "\\\\+");
 		res = res.replaceAll("\\:", "\\:");
-		res = res.replaceAll("\\\"", "\\\"");
+		res = res.replaceAll("\\$", "\\\\$");
+		res = res.replaceAll("\\^", "\\\\^");
 		return res;
 	}
+	
 	/* associate all the response with their associated requests */
 	public void buildResp() {
 		for (ResponseT resp : getResponses()) {
