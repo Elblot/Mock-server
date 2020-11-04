@@ -101,7 +101,7 @@ public class OutputRequest extends Thread {
 		if (st1.contains("**values**")){ 	
 			String r = "^(" + st1;
 			for (int i = 0; i < resp1.getRegex().size(); ++i) {
-				r = r.replaceFirst("\\*\\*values\\*\\*", ")" + resp1.getRegex().get(i) + "(");
+				r = r.replaceFirst("\\*\\*values\\*\\*", ")" + cleanReg(resp1.getRegex().get(i)) + "(");
 			}
 			r = r + ")$";
 			if (Pattern.matches(r, st2)) {
@@ -142,4 +142,16 @@ public class OutputRequest extends Thread {
 		return false;
 	}
 
+	private static String cleanReg(String reg) {
+		String res = reg;
+		res = res.replaceAll("\\&", "\\&");
+		res = res.replaceAll("\\(", "\\(");
+		res = res.replaceAll("\\)", "\\)");
+		res = res.replaceAll("\\[", "\\[");
+		res = res.replaceAll("\\]", "\\]");
+		res = res.replaceAll("\\.", "\\.");
+		res = res.replaceAll("\\?", "\\.");		
+		return res;
+	}
+	
 }

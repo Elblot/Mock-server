@@ -114,7 +114,7 @@ public class LTS {
 		//abstraction
 		for (RequestT t : pos.getFutureInReq()) {
 			if (t.getPath().contains("**values**")){ 	
-				String r = "^(" + t.getPath();
+				String r = "^(" + cleanReg(t.getPath());
 				for (int i = 0; i < t.getRegex().size(); ++i) {
 					r = r.replaceFirst("\\*\\*values\\*\\*", ")" + t.getRegex().get(i) + "(");
 				}
@@ -123,9 +123,6 @@ public class LTS {
 					res = t;
 					w = t.getWeight();
 				}
-				System.out.println("regex= " + r + "\n" +
-						"url= " + url);
-				
 			}
 			else {
 				if (t.getPath().equals(url) && (t.getWeight() < w | w == -1)){
@@ -169,6 +166,18 @@ public class LTS {
 		return res;
 	}
 
+	private static String cleanReg(String reg) {
+		String res = reg;
+		res = res.replaceAll("\\&", "\\&");
+		res = res.replaceAll("\\(", "\\(");
+		res = res.replaceAll("\\)", "\\)");
+		res = res.replaceAll("\\[", "\\[");
+		res = res.replaceAll("\\]", "\\]");
+		res = res.replaceAll("\\.", "\\.");
+		res = res.replaceAll("\\?", "\\.");		
+		return res;
+	}
+	
 	/* associate all the response with their associated requests */
 	public void buildResp() {
 		for (ResponseT resp : getResponses()) {

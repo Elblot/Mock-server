@@ -68,7 +68,12 @@ public class ResponseT extends Transition {
 			}
 			regex = new ArrayList<String>();
 			for (String r: reg.split(",")) {
-				regex.add(r);
+				if (r.contains("\\")){
+					regex.add(r.replaceAll("\\\\", "\\\\\\\\"));
+				}
+				else {
+					regex.add(r);
+				}
 			}
 		}	
 		if (trans.contains("repetition=")) {

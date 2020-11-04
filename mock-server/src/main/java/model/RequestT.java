@@ -130,7 +130,12 @@ public class RequestT extends Transition {
 			}
 			regex = new ArrayList<String>();
 			for (String r: reg.split(",")) {
-				regex.add(r);
+				if (r.contains("\\")){
+					regex.add(r.replaceAll("\\\\", "\\\\\\\\"));
+				}
+				else {
+					regex.add(r);
+				}
 			}
 		}		
 		if (trans.contains("delay=")) {
@@ -160,7 +165,7 @@ public class RequestT extends Transition {
 		source = src;
 		target = dst;
 	}
-	
+
 	public String getVerb() {
 		return Verb;
 	}
