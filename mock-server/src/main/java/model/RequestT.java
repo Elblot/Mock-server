@@ -225,8 +225,11 @@ public class RequestT extends Transition {
 		int w = -1;
 		ResponseT res = null;
 		for (ResponseT r: resp) {
+			System.out.println(r.toString());
+			System.out.println(r.getWeight());
 			if (w == -1 || w > r.getWeight()) {
 				res = r;
+				w = r.getWeight();
 			}
 		}
 		res.incWeight();
