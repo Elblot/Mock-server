@@ -9,6 +9,12 @@ import java.util.regex.Pattern;
 import model.State;
 import model.Transition;
 
+
+/**
+ * @author Elliott Blot
+ *
+ *represent the model representing the behaviour the mock has to follow.
+ */
 public class LTS {
 
 	/* initial state */
@@ -26,27 +32,47 @@ public class LTS {
 		states = new HashMap<String, State>(); 
 	}
 
+	/**
+	 * Add the list of transitions tr to the the LTS
+	 * @param tr
+	 */
 	public void addTransitions(ArrayList<Transition> tr){
 		for(Transition t:tr){
 			addTransition(t);
 		}
 	}
 
+	/**
+	 * Add a transition to the LTS
+	 * @param transition
+	 */
 	public void addTransition(Transition transition) {
 		String key = transition.getSource().toString() + transition.getName() + transition.getTarget().toString();
 		transitions.put(key, transition);
 	}
 
+	/**
+	 * Add the list of states st to the LTS
+	 * @param st
+	 */
 	public void addStates(ArrayList<State> st){
 		for(State s:st){
 			addState(s);
 		}
 	}
 
+	/**
+	 * Add a state to the LTS 
+	 * @param state
+	 */
 	public void addState(State state) {
 		states.put(state.getLabel(), state);
 	}
 
+	/**
+	 * Initialize the states to new_states 
+	 * @param new_states
+	 */
 	public void setStates(ArrayList<State> new_states) {
 		states = new HashMap<String, State>();
 		for(State s:new_states){
@@ -54,20 +80,37 @@ public class LTS {
 		}
 	}
 
+	/**
+	 * Return the set of states
+	 * @param st
+	 * @return
+	 */
 	public State getState(String st) {
 		return states.get(st);
 	}
 
+	/**
+	 * Return the initial state
+	 * @return
+	 */
 	public State getInitialState() {
 		return this.initialState;
 	}
 
+	/**
+	 * Return the list of transitions
+	 * @return
+	 */
 	public Set<Transition> getTransitions() {
 		Set<Transition> list = new HashSet<Transition>();
 		list.addAll(transitions.values());
 		return(list);
 	}	
 
+	/**
+	 * Return the list of response in the LTS
+	 * @return
+	 */
 	public Set<ResponseT> getResponses(){
 		Set<ResponseT> list = new HashSet<ResponseT>();
 		for (Transition t : transitions.values()) {
@@ -78,17 +121,28 @@ public class LTS {
 		return list;
 	}
 
+	/**
+	 * Return teh set of state of the LTS 
+	 * @return
+	 */
 	public Set<State> getStates() {
 		Set<State> list = new HashSet<State>();
 		list.addAll(states.values());
 		return(list);		
 	}
 
+	/**
+	 * Set the initial state to new_initial_state
+	 * @param new_initial_state
+	 */
 	public void setInitialState(State new_initial_state) {
 		new_initial_state.setInit();
 		this.initialState = new_initial_state;
 	}
 
+	/**
+	 * Return a printable version of the LTS
+	 */
 	public String toString() {
 		String lts = this.getStates().size() + " states: ";
 		lts = lts + this.getStates().toString();
@@ -97,6 +151,10 @@ public class LTS {
 		return lts;		
 	}
 
+	/**
+	 * Return the request that can be received by the mock, in strings
+	 * @return
+	 */
 	public Set<String> getInputRequests(){
 		Set<String> reqs = new HashSet<String>();
 		for (Transition t: transitions.values()) {
@@ -108,6 +166,12 @@ public class LTS {
 	}
 
 
+	/**
+	 * Get the next request that should be received by the mock.
+	 * @param url
+	 * @param pos
+	 * @return
+	 */
 	public RequestT getReq(String url, State pos) {
 		RequestT res = null;
 		int w = -1;
@@ -115,8 +179,6 @@ public class LTS {
 		for (RequestT t : pos.getFutureInReq()) {
 			if (t.getPath().contains("**values**")){ 	
 				String r = "^(" + cleanReg(t.getPath());
-				System.out.println(r);
-				System.out.println(url);
 				for (int i = 0; i < t.getRegex().size(); ++i) {
 					r = r.replaceFirst("\\*\\*values\\*\\*", ")" + t.getRegex().get(i) + "(");
 				}
@@ -132,42 +194,15 @@ public class LTS {
 					w = t.getWeight();
 				}
 			}
-
-
-			/*while (path1.contains("**values**")) { //todo uilt a regex ^(prefix reg1 next reg2 suffix)$
-				if (i >= t.getRegex().size()) {
-					System.err.println("Some regex are missing, we found more varaible **values** than regex.");
-				}
-				int prefix = path1.indexOf("**values**");
-				int suffix = path1.length() - 1 - path1.indexOf("**values**") - 10;
-				if (path2.length() > prefix + suffix) {
-					String value = path2.substring(prefix, path2.length() - suffix - 1);	
-					match = Pattern.matches(t.getRegex().get(i), value);
-				}
-				path1 = path1.replaceFirst("\\*\\*values\\*\\*", "");
-				if (path2.length() > prefix + suffix) {
-					String urlprefix = path2.substring(0, prefix);
-					String urlsuffix = path2.substring(path2.length() - suffix - 1);
-					path2 = urlprefix + urlsuffix;
-					if (!match){ // && path1.equals(path2) && (t.getWeight() < w | w == -1))) {
-						break;
-						//res = t;
-						//w = t.getWeight();
-					}
-				}	
-				++i;
-			}
-
-			//			if (!t.getPath().contains("**values**")){
-			if (match && path1.equals(path2) && (t.getWeight() < w | w == -1)) {
-				res = t;
-				w = t.getWeight();
-			}
-			//			}*/
 		}
 		return res;
 	}
 
+	/**
+	 * Clean the string to keep special characters in th regex.
+	 * @param reg
+	 * @return
+	 */
 	private static String cleanReg(String reg) {
 		String res = reg;
 		res = res.replaceAll("\\&", "\\\\&");
@@ -188,16 +223,20 @@ public class LTS {
 		return res;
 	}
 	
-	/* associate all the response with their associated requests */
+	/**
+	 *  Associate all the response with their associated requests 
+	 **/
 	public void buildResp() {
 		for (ResponseT resp : getResponses()) {
-			//System.out.println(resp + "is a response");
 			for (RequestT req : resp.getLastRequests()) {
 				req.addResponse(resp);
 			}
 		}
 	}
 
+	/**
+	 * Print the request of the LTS, and their associated responses
+	 */
 	public void printReq() {
 		for (Transition t : getTransitions()) {
 			if (t instanceof RequestT) {
@@ -206,22 +245,6 @@ public class LTS {
 						+ " resp : " + ((RequestT) t).getResponses());
 			}
 		}
-	}
-
-	// for debug purpose, to remove
-	public ResponseT getRandResp() {
-		for (ResponseT t : getResponses()) {
-			return t;
-		}
-		return null;
-
-	}
-
-	public State getRandSt() {
-		for (State s : getStates()) {
-			return s;
-		}
-		return null;
 	}
 
 }

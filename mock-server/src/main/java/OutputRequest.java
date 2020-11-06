@@ -4,17 +4,18 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Objects;
 import java.util.regex.Pattern;
 
+/**
+ * This class represents a request that will be send by teh mock.
+ */
 
 public class OutputRequest extends Thread {
-	private RequestT req;
+	private RequestT req; //request to send extracted from the model
 	private OkHttpClient client = new OkHttpClient();
 	private boolean match;
 
@@ -24,6 +25,9 @@ public class OutputRequest extends Thread {
 		match = false;
 	}
 
+	/**
+	* build the request from the RequesT req, and call Send the request, and assess the response to see if it fit the model.
+	**/
 	@Override
 	public void run() {
 		int i = 0;
@@ -62,7 +66,6 @@ public class OutputRequest extends Thread {
 			try (Response res = client.newCall(request).execute()) {
 				String result = "no response found in the model";
 				int code = res.code();
-				//String head = res.header();
 				String body = res.body().string();
 				if(!req.getResponses().isEmpty()) {
 					boolean b = true;
@@ -93,15 +96,19 @@ public class OutputRequest extends Thread {
 			} catch (IOException e) {
 				LoggerFactory.getLogger("MOCK").error(String.format("Request: %s %s -- ERROR %s", request.method(), request.url(), e.getClass().getSimpleName()));
 			}
-		}).run();//.start();
+		}).run();
 	}
 
+	/**
+	 * CHeck if the response received st2 match with a response resp1 of the model
+	 * @param resp1 a response from the model
+	 * @param st2 the response received
+	 * @return boolean
+	 */
 	private boolean RespEquals(ResponseT resp1, String st2) {
 		String st1 = resp1.getBody().replaceAll("\\s","");
 		if (st1.contains("**values**")){ 	
 			String r = "^(" + cleanReg(st1);
-			System.out.println(r);
-			System.out.println(st2);
 			for (int i = 0; i < resp1.getRegex().size(); ++i) {
 				r = r.replaceFirst("\\*\\*values\\*\\*", ")" + resp1.getRegex().get(i) + "(");
 			}
@@ -115,35 +122,14 @@ public class OutputRequest extends Thread {
 				return true;
 			}
 		}		
-		/*
-		if (st1.contains("**values**")) {//while
-			boolean match = true;
-			int prefix = st1.indexOf("**values**");
-			int suffix = st1.length() - 1 - st1.indexOf("**values**") - 10;
-			if (!resp1.getRegex().equals("")) {
-				if (st2.length() > prefix + suffix) {
-					String value = st2.substring(prefix, st2.length() - suffix - 1);	
-					match = Pattern.matches(resp1.getRegex(), value);
-				}
-			}
-			String path1 = st1.replaceAll("\\*\\*values\\*\\*", "");
-			if (st2.length() > prefix + suffix) {
-				String urlprefix = st2.substring(0, prefix);
-				String urlsuffix = st2.substring(st2.length() - suffix - 1);
-				String path2 = urlprefix + urlsuffix;
-				if (match && path1.equals(path2)) {
-					return true;
-				}
-			}				
-		}
-		else {
-			if (st1.equals(st2)) {
-				return true;
-			}
-		}*/
 		return false;
 	}
 
+	/**
+	 * Clean the string, adding special characters for the regex that are remove by java.
+	 * @param reg
+	 * @return 
+	 */
 	private static String cleanReg(String reg) {
 		String res = reg;
 		res = res.replaceAll("\\&", "\\\\&");

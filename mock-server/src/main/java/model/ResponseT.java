@@ -1,10 +1,14 @@
 package model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 
+/**
+ * Represent a Response
+ * @author Elliott Blot
+ *
+ */
 public class ResponseT extends Transition {
 
 	
@@ -12,10 +16,17 @@ public class ResponseT extends Transition {
 	private String content;
 	private boolean proc;
 	
+	/**
+	 * Parse the transition to create the response
+	 * @param src, the source state
+	 * @param trans, the label of the transition
+	 * @param dst, the target state
+	 */
 	@SuppressWarnings("unchecked")
 	public ResponseT(State src, String trans, State dst) {
 		proc = false;
 		name = trans;
+		//Build the body
 		body = trans.substring(trans.indexOf("body=")+5);
 		if (body.contains(separator)) {
 			body = body.substring(0,body.indexOf(separator));
@@ -23,6 +34,7 @@ public class ResponseT extends Transition {
 		else {
 			body = body.substring(0,body.indexOf(")"));
 		}
+		//Build the status
 		String st = trans.substring(trans.indexOf("status=")+7);
 		if (st.contains(separator)) {
 			st = st.substring(0,st.indexOf(separator));
@@ -31,6 +43,7 @@ public class ResponseT extends Transition {
 			st = st.substring(0,st.indexOf(")"));
 		}
 		status = Integer.parseInt(st);
+		//Build the sender
 		from = trans.substring(trans.indexOf("Host=")+5);
 		if (from.contains(separator)) {
 			from = from.substring(0,from.indexOf(separator));
@@ -38,6 +51,7 @@ public class ResponseT extends Transition {
 		else {
 			from = from.substring(0,from.indexOf(")"));
 		}
+		//Build the receiver
 		to = trans.substring(trans.indexOf("Dest=")+5);
 		if (to.contains(separator)) {
 			to = to.substring(0,to.indexOf(separator));
@@ -45,6 +59,7 @@ public class ResponseT extends Transition {
 		else {
 			to = to.substring(0,to.indexOf(")"));
 		}
+		//Build the weight
 		if (trans.contains("weight=")) {
 			String w = trans.substring(trans.indexOf("weight=")+7);
 			if (w.contains(separator)) {
@@ -58,6 +73,7 @@ public class ResponseT extends Transition {
 		else {
 			weight = 0;			
 		}
+		//Build the regex used for abstraction of **values** in input 
 		if (trans.contains("regex=")) {
 			String reg = trans.substring(trans.indexOf("regex=")+6);
 			if (reg.contains(separator)) {
@@ -76,6 +92,7 @@ public class ResponseT extends Transition {
 				}
 			}
 		}	
+		//Build repetition
 		if (trans.contains("repetition=")) {
 			String w = trans.substring(trans.indexOf("reptition=")+10);
 			if (w.contains(separator)) {
@@ -89,6 +106,7 @@ public class ResponseT extends Transition {
 		else {
 			repetition = 1;			
 		}
+		// Build content
 		if (trans.contains("Content-Type=")) {
 			String w = trans.substring(trans.indexOf("Content-Type=")+13);
 			if (w.contains(separator)) {
@@ -102,6 +120,7 @@ public class ResponseT extends Transition {
 		else {
 			content = null;			
 		}
+		//Build the delay
 		if (trans.contains("delay=")) {
 			String w = trans.substring(trans.indexOf("delay=")+6);
 			if (w.contains(separator)) {
@@ -115,6 +134,7 @@ public class ResponseT extends Transition {
 		else {
 			delay = 0;
 		}	
+		//Build the variable used to replace **values** in output 
 		if (trans.contains("start=") && trans.contains("fun=")) {
 			String sta = trans.substring(trans.indexOf("start=")+6);
 			if (sta.contains(separator)) {
@@ -169,6 +189,9 @@ public class ResponseT extends Transition {
 		target = dst;
 	}
 	
+	/**
+	 * Return the body
+	 */
 	public String getBody() {
 		if (isOutput() && body.contains("**values**")) {
 			ApplyLaw();
@@ -183,30 +206,59 @@ public class ResponseT extends Transition {
 		}
 	}
 	
+	/**
+	 * Change the body
+	 * @param v
+	 */
 	public void setBody(String v) {
 		body = v;
 	}
 	
+	/**
+	 * Return the status
+	 * @return
+	 */
 	public int getStatus() {
 		return status;
 	}
 	
+	/**
+	 * Return true if the response was received by the mock 
+	 * and can then be fired in the model 
+	 * @return
+	 */
 	public boolean isProc() {
 		return proc;
 	}
 	
+	/**
+	 * Set the response ad processed
+	 * @param b
+	 */
 	public void setProc(boolean b) {
 		proc = b;
 	}
 	
+	/**
+	 * Change the status
+	 * @param st
+	 */
 	public void setStatus(int st) {
 		status = st;
 	}
 
+	/**
+	 * Return the content type
+	 * @return
+	 */
 	public String getContent() {
 		return content;
 	}
 	
+	/**
+	 * Return the last request associated to this response
+	 * @return
+	 */
 	public Set<RequestT> getLastRequests(){
 		return getLastRequests(this);		
 	}

@@ -18,6 +18,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
 
+
+/**
+ * @author Elliott Blot
+ */
 @WebServlet(urlPatterns = {"/*"})
 public class WebService extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -44,43 +48,9 @@ public class WebService extends HttpServlet {
 		});
 
 		app.post("/rules", DotHandler()); // receipt the mock model
-		//app.post("/attack",attackHandler()); TODO
 		app.get("/", ctx -> ctx.result("Mock: It works ! \n Send the dot file representing the mock to the path /rules as plain/text data to start it."));
 	}
 
-	/**
-	 * TODO
-	 * This method is called when the user does a HTTP POST request to the
-	 * attack path of the mock IP address. It calls the correct attack methods
-	 * according to the user's choice.
-	 */
-	/*private Handler attackHandler() {
-		return ctx -> {
-			if(getRules().size() != 0) {
-				Attacker attacker = new Attacker(getRules());
-				ctx.status(204);
-				if(Objects.equals(ctx.queryParam("type"), "all")) {
-					attacker.XSSAttacks();
-					attacker.httpFloodAttack();
-					attacker.robustnessAttacks();
-				} else if (Objects.equals(ctx.queryParam("type"), "httpflood")) {
-					attacker.httpFloodAttack();
-				} else if(Objects.equals(ctx.queryParam("type"), "xss")) {
-					attacker.XSSAttacks();
-				} else if(Objects.equals(ctx.queryParam("type"),"robustness")) {
-					attacker.robustnessAttacks();
-				}
-				else {
-					ctx.result("Error: wrong/no attack type given;");
-					ctx.status(400);
-				}
-				attacker.attack();
-			} else {
-				ctx.result("Error: no rules found.");
-				ctx.status(400);
-			}
-		};
-	}*/
 
 	/**
 	 * This method build all the rules followed by the service when it 
@@ -101,20 +71,15 @@ public class WebService extends HttpServlet {
 						if (t.getDelay() == 0 || lastAction != 0 || t.getDelay() < now - lastAction) { // if the request is not received to late
 							while (pos.isInit() && getMin() != time) { 
 								// if several possible, only one processed at a time (the first received)
-								// only possible for initial state
-								//TODO case of indeterministic inputs, and both received at the same times.
-								System.out.println("start waiting");
 								this.wait();
-								System.out.println("stop waiting");
 							}						
 							pos = t.getTarget();
 							lastAction = now;
-							while (runMock(true) == true); //if nested requests
+							while (runMock(true) == true); //run multiple times if nested requests
 							ResponseT resp = t.getMinResponse();
 							lastAction = System.currentTimeMillis();
 							ctx.result(resp.getBody());
 							ctx.status(resp.getStatus());
-							//TODO add the delay if there is one for the response
 							Thread.sleep(10);//// avoid getting several responses to send at the same time
 							if (resp.getContent() != null) {
 								ctx.contentType(resp.getContent());
@@ -125,14 +90,14 @@ public class WebService extends HttpServlet {
 							fifo.remove(time);
 							if (pos.equals(resp.getSource())) { // check if the response can be sent in the graph
 								pos = resp.getTarget();
-								if (pos.isFinal()) { // useless?
+								if (pos.isFinal()) {
 									pos = dot.getInitialState();
 									LoggerFactory.getLogger("MOCK").info(String.format("beginning of a new session."));
 								}
 							}
 							else { // the response cannot be send from this state in the graph
 								ctx.status(500);
-								LoggerFactory.getLogger("MOCK").info(String.format("error: response " + resp.toString() + " launched from state " + pos.toString()));
+								LoggerFactory.getLogger("MOCK").info(String.format("error: response " + resp.toString() + "cannot be launched from state " + pos.toString()));
 								pos = dot.getInitialState();
 							}
 						}
@@ -158,7 +123,6 @@ public class WebService extends HttpServlet {
 							lastAction = System.currentTimeMillis();
 							ctx.result(resp.getBody());
 							ctx.status(resp.getStatus());
-							//TODO add the delay if there is one for the response
 							Thread.sleep(10);////avoid getting several responses to send at the same time
 							if (resp.getContent() != null) {
 								ctx.contentType(resp.getContent());
@@ -288,7 +252,7 @@ public class WebService extends HttpServlet {
 			}
 			return true;
 		}
-		// if the component wants to send a request but it's too early
+		// if the component wants to send a request but it's too early (delay)
 		if (!pos.getFutureOutReq().isEmpty()) {
 			Thread.sleep(10);
 			return true;
@@ -298,7 +262,6 @@ public class WebService extends HttpServlet {
 
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		//System.out.println(req.toString());
 		app.servlet().service(req, resp);
 	}
 }
