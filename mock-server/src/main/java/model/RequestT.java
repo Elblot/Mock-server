@@ -73,7 +73,7 @@ public class RequestT extends Transition {
 		}
 		//Build the repetition
 		if (trans.contains("repetition=")) {
-			String w = trans.substring(trans.indexOf("reptition=")+10);
+			String w = trans.substring(trans.indexOf("repetition=")+11);
 			if (w.contains(separator)) {
 				w = w.substring(0,w.indexOf(separator));
 			}
