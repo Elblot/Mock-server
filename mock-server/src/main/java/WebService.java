@@ -99,6 +99,7 @@ public class WebService extends HttpServlet {
 		//TODO make for the post to
 		for (String path: dot.getInputRequests()) {
 			app.get(path, ctx -> {
+				System.out.println("req received:" + path);
 				long time = System.currentTimeMillis();
 				fifo.add(time);
 				synchronized(this){ 
