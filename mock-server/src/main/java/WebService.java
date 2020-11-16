@@ -38,8 +38,8 @@ public class WebService extends HttpServlet {
 	 * It also collects the content type of the HTTP request.
 	 */
 	public WebService() {
-		//mode = "classic";
-		mode = "XSS";
+		mode = "classic";
+		//mode = "XSS";
 		app = Javalin.createStandalone(config -> {
 			config.requestLogger((ctx, executionTimeMs) -> LoggerFactory.getLogger("MOCK").info(String.format("%s on %s -> %d: %s", ctx.method(), ctx.fullUrl(), ctx.res.getStatus(), ctx.resultString())));
 		});
@@ -133,6 +133,7 @@ public class WebService extends HttpServlet {
 								if (pos.isFinal()) {
 									pos = dot.getInitialState();
 									LoggerFactory.getLogger("MOCK").info(String.format("beginning of a new session."));
+									lastAction = System.currentTimeMillis();
 								}
 							}
 							else { // the response cannot be send from this state in the graph
@@ -179,6 +180,7 @@ public class WebService extends HttpServlet {
 								if (pos.isFinal()) {
 									pos = dot.getInitialState();
 									LoggerFactory.getLogger("MOCK").info(String.format("beginning of a new session."));
+									lastAction = System.currentTimeMillis();
 								}
 							}
 							else { // the response cannot be send from this state in the graph
@@ -228,7 +230,7 @@ public class WebService extends HttpServlet {
 				throw new LoaderException("Wrong content type, \"text/plain\" was expected");
 			}
 			dot = loader.load(ctx.body());
-			System.out.println(dot.toString());
+			//System.out.println(dot.toString());
 			if (mode.equals("XSS")) {
 				dot.makeXSS();
 			}
@@ -238,7 +240,7 @@ public class WebService extends HttpServlet {
 			else if (mode.equals("dos")) {
 				//dot.makeDos();
 			}
-			System.out.println(dot.toString());
+			//System.out.println(dot.toString());
 			pos = dot.getInitialState();
 			buildInputRequestHandler();
 			lastAction = System.currentTimeMillis();
@@ -260,6 +262,7 @@ public class WebService extends HttpServlet {
 					}
 					pos = dot.getInitialState();
 					LoggerFactory.getLogger("MOCK").info(String.format("beginning of a new session."));
+					lastAction = System.currentTimeMillis();
 					this.notifyAll();// if end of the session, start one paused.
 				}
 			}
