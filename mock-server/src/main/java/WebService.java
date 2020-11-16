@@ -128,9 +128,9 @@ public class WebService extends HttpServlet {
 							fifo.remove(time);
 							if (pos.equals(resp.getSource())) { // check if the response can be sent in the graph
 								pos = resp.getTarget();
-								while (System.currentTimeMillis() - lastAction < resp.getDelay()) {
+								/*while (System.currentTimeMillis() - lastAction < resp.getDelay()) {
 									Thread.sleep(10);
-								}
+								}*/
 								if (pos.isFinal()) {
 									pos = dot.getInitialState();
 									LoggerFactory.getLogger("MOCK").info(String.format("beginning of a new session."));
@@ -175,9 +175,9 @@ public class WebService extends HttpServlet {
 							fifo.remove(time);
 							if (pos.equals(resp.getSource())) {
 								pos = resp.getTarget();
-								while (System.currentTimeMillis() - lastAction < resp.getDelay()) {
+								/*while (System.currentTimeMillis() - lastAction < resp.getDelay()) {
 									Thread.sleep(10);
-								}
+								}*/
 								if (pos.isFinal()) {
 									pos = dot.getInitialState();
 									LoggerFactory.getLogger("MOCK").info(String.format("beginning of a new session."));
