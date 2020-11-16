@@ -26,8 +26,8 @@ public class OutputRequest extends Thread {
 	}
 
 	/**
-	* build the request from the RequestT req, and call Send the request, and assess the response to see if it fit the model.
-	**/
+	 * build the request from the RequestT req, and call Send the request, and assess the response to see if it fit the model.
+	 **/
 	@Override
 	public void run() {
 		int i = 0;
@@ -70,8 +70,10 @@ public class OutputRequest extends Thread {
 				int code = res.code();
 				String body = res.body().string();
 				if(!req.getResponsesDelay(time).isEmpty()) {
+				//if(!req.getResponses().isEmpty()) {
 					boolean b = true;
 					for (ResponseT r: req.getResponsesDelay(time)) {
+					//for (ResponseT r: req.getResponses()) {
 						match = true;
 						if(r.getStatus() != code) match = false;
 						final boolean[] doesHeadersMatch = {true};
@@ -93,7 +95,7 @@ public class OutputRequest extends Thread {
 					}
 				}
 				else {
-					LoggerFactory.getLogger("MOCK").info(String.format("Request: %s %s -- %d (%s)", request.method(), request.url(), result));
+					LoggerFactory.getLogger("MOCK").info(String.format("Request: %s %s -- ERROR, no request with coresponding delay found", request.method(), request.url()));
 				}
 			} catch (IOException e) {
 				LoggerFactory.getLogger("MOCK").error(String.format("Request: %s %s -- ERROR %s", request.method(), request.url(), e.getClass().getSimpleName()));
@@ -151,5 +153,5 @@ public class OutputRequest extends Thread {
 		res = res.replaceAll("\\^", "\\\\^");
 		return res;
 	}
-	
+
 }
