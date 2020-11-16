@@ -49,6 +49,19 @@ public class LTS {
 	public void addTransition(Transition transition) {
 		String key = transition.getSource().toString() + transition.getName() + transition.getTarget().toString();
 		transitions.put(key, transition);
+		transition.getSource().addSuccesseur(transition);
+		transition.getTarget().addPredecesseur(transition);		
+	}
+
+	/**
+	 * Remove a transition of the LTS
+	 */
+	public void removeTransition(Transition t) {
+		if (transitions.containsValue(t)) {
+			transitions.remove(t.getSource().toString() + t.getName() + t.getTarget().toString());
+			t.getSource().removeSuccesseur(t);
+			t.getTarget().removePredecesseur(t);	
+		}
 	}
 
 	/**
@@ -59,6 +72,39 @@ public class LTS {
 		for(State s:st){
 			addState(s);
 		}
+	}
+
+	/**
+	 * Modify the transition of the model to produce XSS attacks
+	 */
+	public void makeXSS() {
+		//System.out.println("modification du lts");
+		for (RequestT t: getOutputRequests()) {
+			//System.out.println("t:" + t);
+			for (String p: t.getParam()) {
+				for (String XSS: getXSSString()) {
+					String newuri = t.getUri().replace(p, XSS);
+					RequestT x = new RequestT(t, newuri);
+					//System.out.println(getTransitions());
+					addTransition(x);
+					//System.out.println(getTransitions());
+				}
+			}
+			removeTransition(t);
+		}
+	}
+
+	/**
+	 * Return list of strings that can be include in parameters 
+	 */
+	public Set<String> getXSSString(){
+		Set<String> res = new HashSet<String>();
+		// put XSS script here
+		res.add("<script>alert(1);</script>");
+		res.add("%3Cscript%3Ealert(1);%3C/script%3E");
+		res.add("%3Cscript%3Ealert(1)%3B%3C%2Fscript%3E");
+		res.add("%3Cscript%3Ealert%281%29%3B%3C%2Fscript%3E");	
+		return res;
 	}
 
 	/**
@@ -152,7 +198,20 @@ public class LTS {
 	}
 
 	/**
-	 * Return the request that can be received by the mock, in strings
+	 * Return the requests that can be sent by the mock
+	 */
+	public Set<RequestT> getOutputRequests(){
+		Set<RequestT> res = new HashSet<RequestT>();
+		for (Transition t: transitions.values()) {
+			if (t.isOutput() && t instanceof RequestT){
+				res.add(((RequestT) t));
+			}
+		}
+		return res;
+	}
+
+	/**
+	 * Return the requests that can be received by the mock, in strings
 	 * @return
 	 */
 	public Set<String> getInputRequests(){
@@ -222,7 +281,7 @@ public class LTS {
 		res = res.replaceAll("\\^", "\\\\^");
 		return res;
 	}
-	
+
 	/**
 	 *  Associate all the response with their associated requests 
 	 **/

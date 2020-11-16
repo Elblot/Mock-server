@@ -2,6 +2,7 @@ package model;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -177,7 +178,18 @@ public abstract class Transition {
 	 * @return
 	 */
 	public Map<String, String> getHeaders() {
-		return Collections.unmodifiableMap(headers);
+		System.out.println(this.toString());
+		System.out.println(headers);
+		if (headers != null || headers.keySet().isEmpty()) {
+			return new HashMap<String, String>();
+		}
+		else {
+			return new HashMap<String, String>(headers);
+		}
+		//HashMap<String,String> res = new HashMap<String, String>(headers);
+		//for (String k : headers.)
+		//return  res;
+		//return Collections.unmodifiableMap(headers);
 	}
 	
 	/**
@@ -259,7 +271,29 @@ public abstract class Transition {
 		}
 		return set;
 	}
-
+	
+	/**
+	 * Return the list of functions
+	 */
+	public ArrayList<String> getFun(){
+		return fun;
+	}
+	
+	/**
+	 * Return the list of starting values
+	 */
+	public ArrayList<Double> getStart(){
+		return start;
+	}
+	
+	/**
+	 * Return the list of step for the functions
+	 */
+	public ArrayList<Double> getStep(){
+		return step;
+	}
+	
+	
 	/**
 	 * Apply the function in fun, to update the values that replace the 
 	 * **values** in output message.

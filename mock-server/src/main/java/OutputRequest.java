@@ -26,7 +26,7 @@ public class OutputRequest extends Thread {
 	}
 
 	/**
-	* build the request from the RequesT req, and call Send the request, and assess the response to see if it fit the model.
+	* build the request from the RequestT req, and call Send the request, and assess the response to see if it fit the model.
 	**/
 	@Override
 	public void run() {
@@ -63,13 +63,15 @@ public class OutputRequest extends Thread {
 	 */
 	private void requestAsync(Request request) {
 		new Thread(() -> {
+			long reqSent = System.currentTimeMillis();
 			try (Response res = client.newCall(request).execute()) {
+				long time = System.currentTimeMillis() - reqSent;
 				String result = "no response found in the model";
 				int code = res.code();
 				String body = res.body().string();
-				if(!req.getResponses().isEmpty()) {
+				if(!req.getResponsesDelay(time).isEmpty()) {
 					boolean b = true;
-					for (ResponseT r: req.getResponses()) {
+					for (ResponseT r: req.getResponsesDelay(time)) {
 						match = true;
 						if(r.getStatus() != code) match = false;
 						final boolean[] doesHeadersMatch = {true};

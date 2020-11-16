@@ -30,6 +30,7 @@ public class WebService extends HttpServlet {
 	private Javalin app;
 	private long lastAction;
 	private static ArrayList<Long> fifo = new ArrayList<Long>(); // not a queue, the different times can be put in any order
+	private String mode;
 
 	/**
 	 * This method starts the web server. The server is listening on 3 paths:
@@ -37,6 +38,8 @@ public class WebService extends HttpServlet {
 	 * It also collects the content type of the HTTP request.
 	 */
 	public WebService() {
+		//mode = "classic";
+		mode = "XSS";
 		app = Javalin.createStandalone(config -> {
 			config.requestLogger((ctx, executionTimeMs) -> LoggerFactory.getLogger("MOCK").info(String.format("%s on %s -> %d: %s", ctx.method(), ctx.fullUrl(), ctx.res.getStatus(), ctx.resultString())));
 		});
@@ -47,11 +50,45 @@ public class WebService extends HttpServlet {
 			ctx.result(String.format("%s, %s", exception.getClass().toString(), exception.getMessage()));
 		});
 
+		app.post("/mode", ModeChange());
 		app.post("/rules", DotHandler()); // receipt the mock model
-		app.get("/", ctx -> ctx.result("Mock: It works ! \n Send the dot file representing the mock to the path /rules as plain/text data to start it."));
+		app.get("/", ctx -> ctx.result("Mock: It works ! \n Send the dot file representing the mock to the path /rules as plain/text data to start it. "
+				+ "\n current mode: " + mode
+				+ "\n \n You can change the mode by sendind the wanted mode as plain/text data to the path /mode"
+				+ "\n The following modes are available: "
+				+ "\n \"classic\": the mock will follow the behaviour of the model sent."
+				+ "\n \"XSS\": the model sent will be modified to produce somme XSS attacks."
+				+ "\n \"dos\": the model will be modified for sending a lot of huge messages."
+				+ "\n \"robustness\": the model will be modified, by replacing values of messages sent by random strings."));
 	}
 
 
+	private Handler ModeChange() {
+		return ctx -> {
+			if (!Objects.equals(ctx.header("Content-Type"), "text/plain")) {
+				throw new LoaderException("Wrong content type, \"text/plain\" was expected");
+			}
+			if (ctx.body().equals("classic")){
+				mode = "classic";
+				ctx.status(200);
+			}
+			else if (ctx.body().equals("XSS")){
+				mode = "XSS";
+				ctx.status(200);
+			}
+			else if (ctx.body().equals("dos")){
+				mode = "dos";
+				ctx.status(200);
+			}
+			else if (ctx.body().equals("robustness")){
+				mode = "robustness";
+				ctx.status(200);
+			}
+			else {
+				throw new LoaderException("Error, expected modes are \"classic\", \"XSS\", \"dos\", or \"robustness\"");
+			}
+		};
+	}
 	/**
 	 * This method build all the rules followed by the service when it 
 	 * receives a request. The response are constructed according to the graph
@@ -90,6 +127,9 @@ public class WebService extends HttpServlet {
 							fifo.remove(time);
 							if (pos.equals(resp.getSource())) { // check if the response can be sent in the graph
 								pos = resp.getTarget();
+								while (System.currentTimeMillis() - lastAction < resp.getDelay()) {
+									Thread.sleep(10);
+								}
 								if (pos.isFinal()) {
 									pos = dot.getInitialState();
 									LoggerFactory.getLogger("MOCK").info(String.format("beginning of a new session."));
@@ -133,6 +173,9 @@ public class WebService extends HttpServlet {
 							fifo.remove(time);
 							if (pos.equals(resp.getSource())) {
 								pos = resp.getTarget();
+								while (System.currentTimeMillis() - lastAction < resp.getDelay()) {
+									Thread.sleep(10);
+								}
 								if (pos.isFinal()) {
 									pos = dot.getInitialState();
 									LoggerFactory.getLogger("MOCK").info(String.format("beginning of a new session."));
@@ -185,6 +228,17 @@ public class WebService extends HttpServlet {
 				throw new LoaderException("Wrong content type, \"text/plain\" was expected");
 			}
 			dot = loader.load(ctx.body());
+			System.out.println(dot.toString());
+			if (mode.equals("XSS")) {
+				dot.makeXSS();
+			}
+			else if (mode.equals("robustness")) {
+				//dot.makeRobustness();
+			}
+			else if (mode.equals("dos")) {
+				//dot.makeDos();
+			}
+			System.out.println(dot.toString());
 			pos = dot.getInitialState();
 			buildInputRequestHandler();
 			lastAction = System.currentTimeMillis();

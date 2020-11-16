@@ -3,6 +3,7 @@ package model;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -85,7 +86,7 @@ public class RequestT extends Transition {
 		else {
 			repetition = 1;			
 		}
-		//Build paramters used by functions replacing **values** in outputs
+		//Build parameters used by functions replacing **values** in outputs
 		if (trans.contains("start=") && trans.contains("fun=")) {
 			String st = trans.substring(trans.indexOf("start=")+6);
 			if (st.contains(separator)) {
@@ -184,6 +185,35 @@ public class RequestT extends Transition {
 		target = dst;
 	}
 
+	public RequestT(RequestT t, String newuri) {
+		source = t.getSource();
+		target = t.getTarget();
+		Verb = t.getVerb();
+		resp = t.getResponses();
+		if (t.isInput()) {
+			name = "?" + newuri;
+		}
+		else if (t.isOutput()) {
+			name = "!" + newuri;
+		}
+		else {
+			name = newuri;    //t.getName();
+		}
+		from = t.getFrom();
+		to = t.getTo();
+		weight = t.getWeight();
+		repetition = t.getRepetition();
+		delay = t.getDelay();
+		headers = t.getHeaders();
+		Uri = newuri;
+		body = t.getBody();
+		fun = t.getFun();
+		start = t.getStart();
+		step = t.getStep();
+		values = t.getStart();
+		regex = t.getRegex();
+	}
+	
 	/**
 	 * Return the Verb
 	 */
@@ -226,12 +256,37 @@ public class RequestT extends Transition {
 	}
 
 	/**
+	 * Return the parameters in the uri.
+	 */
+	public Set<String> getParam(){
+		Set<String> res = new HashSet<String>();
+		String st;
+		if (!Uri.contains("?")) {
+			return res;
+		}
+		st = Uri.substring(Uri.indexOf("?") + 1);
+		while (st.contains("=")) {
+			String p = st.substring(st.indexOf("=")+1);
+			if (p.contains("&")) {
+				st = st.substring(st.indexOf("&")+1);
+				p = p.substring(0, p.indexOf("&"));
+				res.add(p);
+			}
+			else {
+				res.add(p);
+				return res;
+			}			
+		}		
+		return res;
+	}
+	
+	/**
 	 * Get the complete path of the request
 	 * @return
 	 */
 	public String getPath() {
 		String res = "http://";
-		res = res + to + ":8080";
+		res = res + to; // + ":8080";
 		res = res + getUri();
 		return res;
 	}
@@ -255,6 +310,20 @@ public class RequestT extends Transition {
 		return resp;
 	}
 
+	/**
+	 * Return the waited response that can be received in the delay d
+	 */
+	public HashSet<ResponseT> getResponsesDelay(long d){
+		HashSet<ResponseT> res = new HashSet<ResponseT>();
+		for (ResponseT resp: getResponses()) {
+			if ((resp.getDelay() == 0) || resp.getDelay() >= d) {
+				res.add(resp);
+			}
+		}
+		
+		return res;
+	}
+	
 	/**
 	 * Add a response to the request
 	 * @param r
