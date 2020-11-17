@@ -25,6 +25,7 @@ import java.util.*;
 @WebServlet(urlPatterns = {"/*"})
 public class WebService extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	private volatile boolean dotLoaded;
 	private LTS dot;
 	private State pos;
 	private Javalin app;
@@ -33,13 +34,15 @@ public class WebService extends HttpServlet {
 	private String mode;
 
 	/**
-	 * This method starts the web server. The server is listening on 3 paths:
-	 * /config, /rules and /attack.
+	 * This method starts the web server. The server is listening on 2 paths:
+	 * /rules and /mode.
 	 * It also collects the content type of the HTTP request.
+	 * @throws InterruptedException 
 	 */
-	public WebService() {
+	public WebService() throws InterruptedException {
 		mode = "classic";
 		//mode = "XSS";
+		dotLoaded = false;
 		app = Javalin.createStandalone(config -> {
 			config.requestLogger((ctx, executionTimeMs) -> LoggerFactory.getLogger("MOCK").info(String.format("%s on %s -> %d: %s", ctx.method(), ctx.fullUrl(), ctx.res.getStatus(), ctx.resultString())));
 		});
@@ -60,8 +63,43 @@ public class WebService extends HttpServlet {
 				+ "\n \"XSS\": the model sent will be modified to produce somme XSS attacks."
 				+ "\n \"dos\": the model will be modified for sending a lot of huge messages."
 				+ "\n \"robustness\": the model will be modified, by replacing values of messages sent by random strings."));
+
+		new Thread(() -> runner()).start();
 	}
 
+	private void runner() {
+		//return ctx -> {
+			try {
+				while(true) {
+					//System.out.println("in loop");
+					if (dotLoaded) {
+						System.out.println("running....");
+						if (pos.getMaxDelay() > System.currentTimeMillis() - lastAction || pos.getMaxDelay() == 0) { 
+							Thread.sleep(10);
+							continue;
+						}
+						synchronized(this){
+							while (runMock(false) == true);
+							if (pos.isInit()) {
+								this.notifyAll();
+							}
+							// if component waits for to receive a request, free the thread
+							if (pos.getMaxDelay() > System.currentTimeMillis() - lastAction || pos.getMaxDelay() == 0) {
+								continue;
+							}
+							pos = dot.getInitialState();
+							LoggerFactory.getLogger("MOCK").info(String.format("beginning of a new session."));
+							lastAction = System.currentTimeMillis();
+							this.notifyAll();// if end of the session, start one paused.
+						}
+					}			
+				}
+			} catch (InterruptedException e) {
+				LoggerFactory.getLogger("MOCK").info(String.format("the run was interupted."));
+				e.printStackTrace();
+			}
+		//};
+	}
 
 	private Handler ModeChange() {
 		return ctx -> {
@@ -246,27 +284,7 @@ public class WebService extends HttpServlet {
 			buildInputRequestHandler();
 			lastAction = System.currentTimeMillis();
 			ctx.status(204);
-			//for (int i = 0 ; i < 10; i++) { //nb session run by the mock
-			while(true) {
-				if (pos.getMaxDelay() > System.currentTimeMillis() - lastAction || pos.getMaxDelay() == 0) { 
-					Thread.sleep(10);
-					continue;
-				}
-				synchronized(this){
-					while (runMock(false) == true);
-					if (pos.isInit()) {
-						this.notifyAll();
-					}
-					// if component waits for to receive a request, free the thread
-					if (pos.getMaxDelay() > System.currentTimeMillis() - lastAction || pos.getMaxDelay() == 0) {
-						continue;
-					}
-					pos = dot.getInitialState();
-					LoggerFactory.getLogger("MOCK").info(String.format("beginning of a new session."));
-					lastAction = System.currentTimeMillis();
-					this.notifyAll();// if end of the session, start one paused.
-				}
-			}
+			dotLoaded = true;
 		};
 	}
 

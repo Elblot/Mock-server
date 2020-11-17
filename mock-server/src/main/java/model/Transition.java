@@ -178,8 +178,8 @@ public abstract class Transition {
 	 * @return
 	 */
 	public Map<String, String> getHeaders() {
-		System.out.println(this.toString());
-		System.out.println(headers);
+		//System.out.println(this.toString());
+		//System.out.println(headers);
 		if (headers != null || headers.keySet().isEmpty()) {
 			return new HashMap<String, String>();
 		}
