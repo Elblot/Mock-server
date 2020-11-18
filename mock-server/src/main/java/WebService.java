@@ -73,7 +73,7 @@ public class WebService extends HttpServlet {
 				while(true) {
 					//System.out.println("in loop");
 					if (dotLoaded) {
-						System.out.println("running....");
+						//System.out.println("running....");
 						if (pos.getMaxDelay() > System.currentTimeMillis() - lastAction || pos.getMaxDelay() == 0) { 
 							Thread.sleep(10);
 							continue;
@@ -166,9 +166,9 @@ public class WebService extends HttpServlet {
 							fifo.remove(time);
 							if (pos.equals(resp.getSource())) { // check if the response can be sent in the graph
 								pos = resp.getTarget();
-								/*while (System.currentTimeMillis() - lastAction < resp.getDelay()) {
+								while (System.currentTimeMillis() - lastAction < resp.getDelay()) {
 									Thread.sleep(10);
-								}*/
+								}
 								if (pos.isFinal()) {
 									pos = dot.getInitialState();
 									LoggerFactory.getLogger("MOCK").info(String.format("beginning of a new session."));
@@ -213,9 +213,9 @@ public class WebService extends HttpServlet {
 							fifo.remove(time);
 							if (pos.equals(resp.getSource())) {
 								pos = resp.getTarget();
-								/*while (System.currentTimeMillis() - lastAction < resp.getDelay()) {
+								while (System.currentTimeMillis() - lastAction < resp.getDelay()) {
 									Thread.sleep(10);
-								}*/
+								}
 								if (pos.isFinal()) {
 									pos = dot.getInitialState();
 									LoggerFactory.getLogger("MOCK").info(String.format("beginning of a new session."));
