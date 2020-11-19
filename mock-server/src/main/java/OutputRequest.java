@@ -73,6 +73,8 @@ public class OutputRequest extends Thread {
 				if(!req.getResponsesDelay(time).isEmpty()) {
 				//if(!req.getResponses().isEmpty()) {
 					boolean b = true;
+					int w = -1;
+					ResponseT resp = null;
 					for (ResponseT r: req.getResponsesDelay(time)) {
 					//for (ResponseT r: req.getResponses()) {
 						match = true;
@@ -83,16 +85,21 @@ public class OutputRequest extends Thread {
 						});
 						match = (doesHeadersMatch[0]) && match;
 						if(!RespEquals(r, body.replaceAll("\\s",""))) match = false;
-						result = match? "Response match rule": "Response doesn't match rule";
-						if (match) {
-							System.out.println(r.getName());
-							LogManager.getLogger("MOCK").error(String.format("Request: %s %s -- %d (%s)", request.method(), request.url(), res.code(), result));
+						//result = match? "Response match rule": "Response doesn't match rule";
+						if (match && (w == -1 || w > r.getWeight())) {
+							resp = r;
+							w = r.getWeight();
 							b = false;
-							r.setProc(true);
-							break;
 						}
+						
 					}
-					if (b){
+					if (!b && resp != null) {
+						System.out.println(resp.getTarget());
+						LogManager.getLogger("MOCK").error(String.format("Request: %s %s -- %d (%s)", request.method(), request.url(), res.code(), "response match rule"));
+						resp.setProc(true);
+						resp.incWeight();
+					}
+					else {
 						LogManager.getLogger("MOCK").error(String.format("Request: %s %s -- ERROR, waited: %s ; received : %s", request.method(), request.url(), req.getResponses().toString(), res.toString()));
 					}
 				}
