@@ -85,18 +85,19 @@ public class OutputRequest extends Thread {
 						if(!RespEquals(r, body.replaceAll("\\s",""))) match = false;
 						result = match? "Response match rule": "Response doesn't match rule";
 						if (match) {
-							LogManager.getLogger("MOCK").info(String.format("Request: %s %s -- %d (%s)", request.method(), request.url(), res.code(), result));
+							System.out.println(r.getName());
+							LogManager.getLogger("MOCK").error(String.format("Request: %s %s -- %d (%s)", request.method(), request.url(), res.code(), result));
 							b = false;
 							r.setProc(true);
 							break;
 						}
 					}
 					if (b){
-						LogManager.getLogger("MOCK").info(String.format("Request: %s %s -- ERROR, waited: %s ; received : %s", request.method(), request.url(), req.getResponses().toString(), res.toString()));
+						LogManager.getLogger("MOCK").error(String.format("Request: %s %s -- ERROR, waited: %s ; received : %s", request.method(), request.url(), req.getResponses().toString(), res.toString()));
 					}
 				}
 				else {
-					LogManager.getLogger("MOCK").info(String.format("Request: %s %s -- ERROR, no request with coresponding delay found", request.method(), request.url()));
+					LogManager.getLogger("MOCK").error(String.format("Request: %s %s -- ERROR, no request with coresponding delay found", request.method(), request.url()));
 				}
 			} catch (IOException e) {
 				LogManager.getLogger("MOCK").error(String.format("Request: %s %s -- ERROR %s", request.method(), request.url(), e.getClass().getSimpleName()));
