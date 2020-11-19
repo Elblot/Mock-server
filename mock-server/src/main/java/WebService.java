@@ -8,7 +8,9 @@ import model.RequestT;
 import model.ResponseT;
 import model.State;
 
-import org.slf4j.LoggerFactory;
+//import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -43,9 +45,37 @@ public class WebService extends HttpServlet {
 		mode = "classic";
 		//mode = "XSS";
 		dotLoaded = false;
+		
+		
+		
+		
+		
 		app = Javalin.createStandalone(config -> {
-			config.requestLogger((ctx, executionTimeMs) -> LoggerFactory.getLogger("MOCK").info(String.format("%s on %s -> %d: %s", ctx.method(), ctx.fullUrl(), ctx.res.getStatus(), ctx.resultString())));
+			config.requestLogger((ctx, executionTimeMs) -> LogManager.getLogger("MOCK").error(String.format("%s on %s -> %d: %s", ctx.method(), ctx.fullUrl(), ctx.res.getStatus(), ctx.resultString())));
 		});
+		
+		
+		/*
+		//testing output
+        System.out.println("SYSTEM.OUT.PRINTLN");
+        LogManager.getLogger("MOCK").info("LOGGER.INFO");
+        LogManager.getLogger("MOCK").debug("LOGGER.DEBUG");
+        LogManager.getLogger("MOCK").trace("LOGGER.TRACE");
+        LogManager.getLogger("MOCK").error("LOGGER.ERROR");
+        LogManager.getLogger("MOCK").warn("LOGGER.WARN");
+
+        // reading log4j.properties
+        java.io.InputStream propertiesStream = this.getClass().getClassLoader().getResourceAsStream("log4j.properties");
+        java.util.Scanner s = new java.util.Scanner(propertiesStream).useDelimiter("\\A");
+        String result = s.hasNext() ? s.next() : "";
+
+        // writing log4j.properties to stdout
+        System.out.println("---CONTENTS OF log4j.properties---");
+        System.out.println(result);
+        System.out.println("---END CONTENTS---");*/
+		
+		
+		
 		app.exception(LoaderException.class, ExceptionHandlers.genericHandler(400));
 		app.exception(Exception.class, (exception, ctx) -> {
 			exception.printStackTrace();
@@ -88,14 +118,14 @@ public class WebService extends HttpServlet {
 								continue;
 							}
 							pos = dot.getInitialState();
-							LoggerFactory.getLogger("MOCK").info(String.format("beginning of a new session."));
+							LogManager.getLogger("MOCK").info(String.format("beginning of a new session."));
 							lastAction = System.currentTimeMillis();
 							this.notifyAll();// if end of the session, start one paused.
 						}
 					}			
 				}
 			} catch (InterruptedException e) {
-				LoggerFactory.getLogger("MOCK").info(String.format("the run was interupted."));
+				LogManager.getLogger("MOCK").info(String.format("the run was interupted."));
 				e.printStackTrace();
 			}
 		//};
@@ -171,13 +201,13 @@ public class WebService extends HttpServlet {
 								}
 								if (pos.isFinal()) {
 									pos = dot.getInitialState();
-									LoggerFactory.getLogger("MOCK").info(String.format("beginning of a new session."));
+									LogManager.getLogger("MOCK").info(String.format("beginning of a new session."));
 									lastAction = System.currentTimeMillis();
 								}
 							}
 							else { // the response cannot be send from this state in the graph
 								ctx.status(500);
-								LoggerFactory.getLogger("MOCK").info(String.format("error: response " + resp.toString() + "cannot be launched from state " + pos.toString()));
+								LogManager.getLogger("MOCK").info(String.format("error: response " + resp.toString() + "cannot be launched from state " + pos.toString()));
 								pos = dot.getInitialState();
 							}
 						}
@@ -185,7 +215,7 @@ public class WebService extends HttpServlet {
 							fifo.remove(time);
 							ctx.result("request received too late.");
 							ctx.status(500);
-							LoggerFactory.getLogger("MOCK").info(String.format("request received too late: " + ctx.fullUrl()));
+							LogManager.getLogger("MOCK").info(String.format("request received too late: " + ctx.fullUrl()));
 						}
 					}
 					else { // the request can be the start of a new session, check from the initial state
@@ -218,13 +248,13 @@ public class WebService extends HttpServlet {
 								}
 								if (pos.isFinal()) {
 									pos = dot.getInitialState();
-									LoggerFactory.getLogger("MOCK").info(String.format("beginning of a new session."));
+									LogManager.getLogger("MOCK").info(String.format("beginning of a new session."));
 									lastAction = System.currentTimeMillis();
 								}
 							}
 							else { // the response cannot be send from this state in the graph
 								ctx.status(500);
-								LoggerFactory.getLogger("MOCK").info(String.format("error: response " + resp.toString() + " launched from state " + pos.toString()));
+								LogManager.getLogger("MOCK").info(String.format("error: response " + resp.toString() + " launched from state " + pos.toString()));
 								pos = dot.getInitialState();
 							}
 							//LoggerFactory.getLogger("MOCK").info(String.format("out : " +  time	 + " req : " + ctx.fullUrl()));
@@ -233,7 +263,7 @@ public class WebService extends HttpServlet {
 							fifo.remove(time);
 							ctx.result("request received at the wrong position in the model.");
 							ctx.status(500);
-							LoggerFactory.getLogger("MOCK").info(String.format("request received at the wrong position in the model: " + ctx.fullUrl()));
+							LogManager.getLogger("MOCK").error(String.format("request received at the wrong position in the model: " + ctx.fullUrl()));
 						}
 					}
 				}

@@ -5,7 +5,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import org.slf4j.LoggerFactory;
+//import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.util.regex.Pattern;
@@ -84,21 +85,21 @@ public class OutputRequest extends Thread {
 						if(!RespEquals(r, body.replaceAll("\\s",""))) match = false;
 						result = match? "Response match rule": "Response doesn't match rule";
 						if (match) {
-							LoggerFactory.getLogger("MOCK").info(String.format("Request: %s %s -- %d (%s)", request.method(), request.url(), res.code(), result));
+							LogManager.getLogger("MOCK").info(String.format("Request: %s %s -- %d (%s)", request.method(), request.url(), res.code(), result));
 							b = false;
 							r.setProc(true);
 							break;
 						}
 					}
 					if (b){
-						LoggerFactory.getLogger("MOCK").info(String.format("Request: %s %s -- ERROR, waited: %s ; received : %s", request.method(), request.url(), req.getResponses().toString(), res.toString()));
+						LogManager.getLogger("MOCK").info(String.format("Request: %s %s -- ERROR, waited: %s ; received : %s", request.method(), request.url(), req.getResponses().toString(), res.toString()));
 					}
 				}
 				else {
-					LoggerFactory.getLogger("MOCK").info(String.format("Request: %s %s -- ERROR, no request with coresponding delay found", request.method(), request.url()));
+					LogManager.getLogger("MOCK").info(String.format("Request: %s %s -- ERROR, no request with coresponding delay found", request.method(), request.url()));
 				}
 			} catch (IOException e) {
-				LoggerFactory.getLogger("MOCK").error(String.format("Request: %s %s -- ERROR %s", request.method(), request.url(), e.getClass().getSimpleName()));
+				LogManager.getLogger("MOCK").error(String.format("Request: %s %s -- ERROR %s", request.method(), request.url(), e.getClass().getSimpleName()));
 			}
 		}).run();
 	}
