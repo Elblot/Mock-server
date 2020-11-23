@@ -32,3 +32,5 @@ dependencies {
     compile 'net.objecthunter:exp4j:0.4.8'
     
 }
+
+//war.from('src/main/resources'){ include('log4j2.properties')}

@@ -9,7 +9,7 @@ import model.ResponseT;
 import model.State;
 
 //import org.slf4j.LoggerFactory;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import javax.servlet.ServletException;
@@ -33,7 +33,7 @@ public class WebService extends HttpServlet {
 	private Javalin app;
 	private long lastAction;
 	private static ArrayList<Long> fifo = new ArrayList<Long>(); // not a queue, the different times can be put in any order
-	private String mode;
+	public static String mode;
 
 	/**
 	 * This method starts the web server. The server is listening on 2 paths:
@@ -42,47 +42,18 @@ public class WebService extends HttpServlet {
 	 * @throws InterruptedException 
 	 */
 	public WebService() throws InterruptedException {
-		mode = "classic";
-		//mode = "XSS";
+		//mode = "classic";
+		mode = "dos";
 		dotLoaded = false;
-		
-		
-		
-		
-		
 		app = Javalin.createStandalone(config -> {
-			config.requestLogger((ctx, executionTimeMs) -> LogManager.getLogger("MOCK").error(String.format("%s on %s -> %d: %s", ctx.method(), ctx.fullUrl(), ctx.res.getStatus(), ctx.resultString())));
+			config.requestLogger((ctx, executionTimeMs) -> LogManager.getLogger("MOCK").info(String.format("%s on %s -> %d: %s", ctx.method(), ctx.fullUrl(), ctx.res.getStatus(), ctx.resultString())));
 		});
-		
-		
-		/*
-		//testing output
-        System.out.println("SYSTEM.OUT.PRINTLN");
-        LogManager.getLogger("MOCK").info("LOGGER.INFO");
-        LogManager.getLogger("MOCK").debug("LOGGER.DEBUG");
-        LogManager.getLogger("MOCK").trace("LOGGER.TRACE");
-        LogManager.getLogger("MOCK").error("LOGGER.ERROR");
-        LogManager.getLogger("MOCK").warn("LOGGER.WARN");
-
-        // reading log4j.properties
-        java.io.InputStream propertiesStream = this.getClass().getClassLoader().getResourceAsStream("log4j.properties");
-        java.util.Scanner s = new java.util.Scanner(propertiesStream).useDelimiter("\\A");
-        String result = s.hasNext() ? s.next() : "";
-
-        // writing log4j.properties to stdout
-        System.out.println("---CONTENTS OF log4j.properties---");
-        System.out.println(result);
-        System.out.println("---END CONTENTS---");*/
-		
-		
-		
 		app.exception(LoaderException.class, ExceptionHandlers.genericHandler(400));
 		app.exception(Exception.class, (exception, ctx) -> {
 			exception.printStackTrace();
 			ctx.status(500);
 			ctx.result(String.format("%s, %s", exception.getClass().toString(), exception.getMessage()));
 		});
-
 		app.post("/mode", ModeChange());
 		app.post("/rules", DotHandler()); // receipt the mock model
 		app.get("/", ctx -> ctx.result("Mock: It works ! \n Send the dot file representing the mock to the path /rules as plain/text data to start it. "
@@ -93,7 +64,6 @@ public class WebService extends HttpServlet {
 				+ "\n \"XSS\": the model sent will be modified to produce somme XSS attacks."
 				+ "\n \"dos\": the model will be modified for sending a lot of huge messages."
 				+ "\n \"robustness\": the model will be modified, by replacing values of messages sent by random strings."));
-
 		new Thread(() -> runner()).start();
 	}
 
@@ -139,18 +109,22 @@ public class WebService extends HttpServlet {
 			if (ctx.body().equals("classic")){
 				mode = "classic";
 				ctx.status(200);
+				ctx.result("mode changed to classic");
 			}
 			else if (ctx.body().equals("XSS")){
 				mode = "XSS";
 				ctx.status(200);
+				ctx.result("mode changed to XSS");
 			}
 			else if (ctx.body().equals("dos")){
 				mode = "dos";
 				ctx.status(200);
+				ctx.result("mode changed to dos");
 			}
 			else if (ctx.body().equals("robustness")){
 				mode = "robustness";
 				ctx.status(200);
+				ctx.result("mode changed to robustness");
 			}
 			else {
 				throw new LoaderException("Error, expected modes are \"classic\", \"XSS\", \"dos\", or \"robustness\"");
@@ -167,7 +141,7 @@ public class WebService extends HttpServlet {
 		//TODO make for the post to
 		for (String path: dot.getInputRequests()) {
 			app.get(path, ctx -> {
-				System.out.println("req received:" + path);
+				//System.out.println("req received:" + path);
 				long time = System.currentTimeMillis();
 				fifo.add(time);
 				synchronized(this){ 
@@ -263,7 +237,7 @@ public class WebService extends HttpServlet {
 							fifo.remove(time);
 							ctx.result("request received at the wrong position in the model.");
 							ctx.status(500);
-							LogManager.getLogger("MOCK").error(String.format("request received at the wrong position in the model: " + ctx.fullUrl()));
+							LogManager.getLogger("MOCK").info(String.format("request received at the wrong position in the model: " + ctx.fullUrl()));
 						}
 					}
 				}
@@ -307,13 +281,14 @@ public class WebService extends HttpServlet {
 				//dot.makeRobustness();
 			}
 			else if (mode.equals("dos")) {
-				//dot.makeDos();
+				dot.makeDos();
 			}
 			//System.out.println(dot.toString());
 			pos = dot.getInitialState();
 			buildInputRequestHandler();
 			lastAction = System.currentTimeMillis();
-			ctx.status(204);
+			ctx.status(200);
+			ctx.result("dot file loaded");
 			dotLoaded = true;
 		};
 	}

@@ -66,48 +66,50 @@ public class OutputRequest extends Thread {
 		new Thread(() -> {
 			long reqSent = System.currentTimeMillis();
 			try (Response res = client.newCall(request).execute()) {
-				long time = System.currentTimeMillis() - reqSent;
-				String result = "no response found in the model";
-				int code = res.code();
-				String body = res.body().string();
-				if(!req.getResponsesDelay(time).isEmpty()) {
-				//if(!req.getResponses().isEmpty()) {
-					boolean b = true;
-					int w = -1;
-					ResponseT resp = null;
-					for (ResponseT r: req.getResponsesDelay(time)) {
-					//for (ResponseT r: req.getResponses()) {
-						match = true;
-						if(r.getStatus() != code) match = false;
-						final boolean[] doesHeadersMatch = {true};
-						r.getHeaders().forEach((s, s2) -> {
-							if(!s2.equals(res.header(s))) doesHeadersMatch[0] = false;
-						});
-						match = (doesHeadersMatch[0]) && match;
-						if(!RespEquals(r, body.replaceAll("\\s",""))) match = false;
-						//result = match? "Response match rule": "Response doesn't match rule";
-						if (match && (w == -1 || w > r.getWeight())) {
-							resp = r;
-							w = r.getWeight();
-							b = false;
+				if (!WebService.mode.equals("dos")) {
+					long time = System.currentTimeMillis() - reqSent;
+					//String result = "no response found in the model";
+					int code = res.code();
+					String body = res.body().string();
+					if(!req.getResponsesDelay(time).isEmpty()) {
+						//if(!req.getResponses().isEmpty()) {
+						boolean b = true;
+						int w = -1;
+						ResponseT resp = null;
+						for (ResponseT r: req.getResponsesDelay(time)) {
+							//for (ResponseT r: req.getResponses()) {
+							match = true;
+							if(r.getStatus() != code) match = false;
+							final boolean[] doesHeadersMatch = {true};
+							r.getHeaders().forEach((s, s2) -> {
+								if(!s2.equals(res.header(s))) doesHeadersMatch[0] = false;
+							});
+							match = (doesHeadersMatch[0]) && match;
+							if(!RespEquals(r, body.replaceAll("\\s",""))) match = false;
+							//result = match? "Response match rule": "Response doesn't match rule";
+							if (match && (w == -1 || w > r.getWeight())) {
+								resp = r;
+								w = r.getWeight();
+								b = false;
+							}
+
 						}
-						
-					}
-					if (!b && resp != null) {
-						System.out.println(resp.getTarget());
-						LogManager.getLogger("MOCK").error(String.format("Request: %s %s -- %d (%s)", request.method(), request.url(), res.code(), "response match rule"));
-						resp.setProc(true);
-						resp.incWeight();
+						if (!b && resp != null) {
+							//System.out.println(resp.getTarget());
+							LogManager.getLogger("MOCK").info(String.format("Request: %s %s -- %d (%s)", request.method(), request.url(), res.code(), "response match rule"));
+							resp.setProc(true);
+							resp.incWeight();
+						}
+						else {
+							LogManager.getLogger("MOCK").info(String.format("Request: %s %s -- ERROR, waited: %s ; received : %s", request.method(), request.url(), req.getResponses().toString(), res.toString()));
+						}
 					}
 					else {
-						LogManager.getLogger("MOCK").error(String.format("Request: %s %s -- ERROR, waited: %s ; received : %s", request.method(), request.url(), req.getResponses().toString(), res.toString()));
+						LogManager.getLogger("MOCK").info(String.format("Request: %s %s -- ERROR, no request with coresponding delay found", request.method(), request.url()));
 					}
 				}
-				else {
-					LogManager.getLogger("MOCK").error(String.format("Request: %s %s -- ERROR, no request with coresponding delay found", request.method(), request.url()));
-				}
 			} catch (IOException e) {
-				LogManager.getLogger("MOCK").error(String.format("Request: %s %s -- ERROR %s", request.method(), request.url(), e.getClass().getSimpleName()));
+				LogManager.getLogger("MOCK").info(String.format("Request: %s %s -- ERROR %s", request.method(), request.url(), e.getClass().getSimpleName()));
 			}
 		}).run();
 	}

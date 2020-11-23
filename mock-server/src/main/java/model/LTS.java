@@ -3,11 +3,12 @@ package model;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import model.State;
-import model.Transition;
+//import model.State;
+//import model.Transition;
 
 
 /**
@@ -73,6 +74,31 @@ public class LTS {
 			addState(s);
 		}
 	}
+
+
+	/**
+	 * Modify the transition of the model to produce a dos to the targets
+	 */
+	public void makeDos() {
+		for (RequestT t: getOutputRequests()) {
+			int leftLimit = 97;// letter 'a'
+			int rightLimit = 122; // letter 'z'
+			int targetStringLength = 1000;
+			Random random = new Random();	 
+			String generatedString = random.ints(leftLimit, rightLimit + 1)
+					.limit(targetStringLength)
+					.collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+					.toString();
+
+			System.out.println(generatedString);
+			
+			String newuri = t.getPathReq() + generatedString;
+			t.setUri(newuri);
+			t.setRepetition(10000);
+			t.setDelay(0);
+		}
+	}
+
 
 	/**
 	 * Modify the transition of the model to produce XSS attacks
@@ -305,5 +331,6 @@ public class LTS {
 			}
 		}
 	}
+
 
 }
