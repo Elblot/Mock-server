@@ -300,8 +300,8 @@ public class ResponseT extends Transition {
 	public Set<String> getParam(){
 		Set<String> res = new HashSet<String>();
 		String st;
-		st = body.replaceAll("{", "");
-		st = st.replaceAll("}", "");
+		st = body.replaceAll("\\{", "");
+		st = st.replaceAll("\\}", "");
 		st = st.replaceAll(",", "");
 		st = st.replaceAll(":", "");
 		st = st.replaceAll(" ", "");
