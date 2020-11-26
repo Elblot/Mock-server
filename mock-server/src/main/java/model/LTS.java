@@ -1,5 +1,6 @@
 package model;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -81,18 +82,8 @@ public class LTS {
 	 */
 	public void makeDos() {
 		for (RequestT t: getOutputRequests()) {
-			int leftLimit = 97;// letter 'a'
-			int rightLimit = 122; // letter 'z'
-			int targetStringLength = 1000;
-			Random random = new Random();	 
-			String generatedString = random.ints(leftLimit, rightLimit + 1)
-					.limit(targetStringLength)
-					.collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-					.toString();
-
-			System.out.println(generatedString);
-			
-			String newuri = t.getPathReq() + generatedString;
+			String generatedString = rdmWord(1000);
+			String newuri = t.getPathReq() + "?" + generatedString;
 			t.setUri(newuri);
 			t.setRepetition(10000);
 			t.setDelay(0);
@@ -100,6 +91,59 @@ public class LTS {
 	}
 
 
+	/**
+	 * Modify the transitions of the LTS to assess the robustness of other components
+	 */
+	public void makeRobustness() {
+		// TODO Auto-generated method stub
+		for (RequestT t: getOutputRequests()) {
+			//System.out.println("t:" + t);
+			for (String p: t.getParam()) {
+				for (String rob: getRobustnessString(p)) {
+					String newuri = t.getUri().replace(p, rob);
+					RequestT x = new RequestT(t, newuri);
+					//System.out.println(getTransitions());
+					addTransition(x);
+					//System.out.println(getTransitions());
+				}
+			}
+			removeTransition(t);
+		}
+		for (ResponseT t: getOutputResponses()) {
+			for (String p: t.getParam()) {
+				for (String rob: getRobustnessString(p)) {
+					String newbody = t.getBody().replace(p, rob);
+					ResponseT x = new ResponseT(t, newbody);
+					//System.out.println(getTransitions());
+					addTransition(x);
+					//System.out.println(getTransitions());
+				}
+			}
+			removeTransition(t);
+		}
+	}
+	
+	/**
+	 * Return list of strings that can be include in parameters 
+	 */
+	public Set<String> getRobustnessString(String p){
+		Set<String> res = new HashSet<String>();
+		// put replacement here
+		res.add("xoxo");
+		res.add(rdmString(8));
+		res.add(rdmNumber(8));
+		res.add(rdmWord(8));
+		res.add(rdmWordDec(8));
+		res.add(rdmWordP(8));
+		//injection of char
+		int index = p.length() / 2;
+		res.add(p.substring(index) + rdmNumber(1) + p.substring(index + 1, p.length() - 1));
+		res.add(p.substring(index) + rdmWord(1) + p.substring(index + 1, p.length() - 1));
+		res.add(p.substring(index) + rdmString(1) + p.substring(index + 1, p.length() - 1));
+		
+		return res;
+	}
+	
 	/**
 	 * Modify the transition of the model to produce XSS attacks
 	 */
@@ -132,6 +176,73 @@ public class LTS {
 		res.add("%3Cscript%3Ealert%281%29%3B%3C%2Fscript%3E");	
 		return res;
 	}
+	
+	/*
+	 * Return a random string composed of any ascii character
+	 */
+	private static String rdmString(int size) {
+		byte[] array = new byte[size]; // length is bounded by 7
+	    new Random().nextBytes(array);
+	    String generatedString = new String(array, Charset.forName("UTF-8"));
+	    return generatedString;
+	}
+	
+	/*
+	 * Return a random stirng composed of numbers
+	 */
+	private static String rdmNumber(int size) {
+		String chars = "0123456789";	
+		Random random = new Random();	 
+		String res = "";
+		for (int i = 0; i < size; ++i) {
+			res = res + chars.charAt(random.nextInt(chars.length()));
+		}
+		System.out.println(res);
+		return res;
+	}
+	
+	/*
+	 * Return a random string composed of letters and numbers characters
+	 */
+	private static String rdmWordDec(int size) {
+		String chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";	
+		Random random = new Random();	 
+		String res = "";
+		for (int i = 0; i < size; ++i) {
+			res = res + chars.charAt(random.nextInt(chars.length()));
+		}
+		System.out.println(res);
+		return res;
+	}
+
+	/*
+	 * Return a random string composed of letters
+	 */
+	private static String rdmWord(int size) {
+		String chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";	
+		Random random = new Random();	 
+		String res = "";
+		for (int i = 0; i < size; ++i) {
+			res = res + chars.charAt(random.nextInt(chars.length()));
+		}
+		System.out.println(res);
+		return res;
+	}
+	
+	/*
+	 * Return a random string composed of letters, numbers and ponctuations
+	 */
+	private static String rdmWordP(int size) {
+		String chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ,;:!=)_-('\"&?./\\{[}]";	
+		Random random = new Random();	 
+		String res = "";
+		for (int i = 0; i < size; ++i) {
+			res = res + chars.charAt(random.nextInt(chars.length()));
+		}
+		System.out.println(res);
+		return res;
+	}
+	
 
 	/**
 	 * Add a state to the LTS 
@@ -223,6 +334,19 @@ public class LTS {
 		return lts;		
 	}
 
+	/**
+	 * Return the response that can be sent by the mock
+	 */
+	public Set<ResponseT> getOutputResponses(){
+		Set<ResponseT> res = new HashSet<ResponseT>();
+		for (Transition t: transitions.values()) {
+			if (t.isOutput() && t instanceof ResponseT){
+				res.add(((ResponseT) t));
+			}
+		}
+		return res;
+	}
+	
 	/**
 	 * Return the requests that can be sent by the mock
 	 */
@@ -331,6 +455,7 @@ public class LTS {
 			}
 		}
 	}
+
 
 
 }

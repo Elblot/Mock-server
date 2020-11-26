@@ -2,6 +2,7 @@ package model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -188,6 +189,35 @@ public class ResponseT extends Transition {
 		source = src;
 		target = dst;
 	}
+
+	public ResponseT(ResponseT t, String newbody) {
+		source = t.getSource();
+		target = t.getTarget();
+		proc = false;
+		status = t.getStatus();
+		content = t.getContent();
+		if (t.isInput()) {
+			name = "?" + newbody;
+		}
+		else if (t.isOutput()) {
+			name = "!" + newbody;
+		}
+		else {
+			name = newbody;    //t.getName();
+		}
+		from = t.getFrom();
+		to = t.getTo();
+		weight = t.getWeight();
+		repetition = t.getRepetition();
+		delay = t.getDelay();
+		headers = t.getHeaders();
+		body = newbody;
+		fun = t.getFun();
+		start = t.getStart();
+		step = t.getStep();
+		values = t.getStart();
+		regex = t.getRegex();
+	}
 	
 	/**
 	 * Return the body
@@ -261,6 +291,25 @@ public class ResponseT extends Transition {
 	 */
 	public Set<RequestT> getLastRequests(){
 		return getLastRequests(this);		
+	}
+
+	/**
+	 * Return the set of parameters in the body of the response.
+	 * @return
+	 */
+	public Set<String> getParam(){
+		Set<String> res = new HashSet<String>();
+		String st;
+		st = body.replaceAll("{", "");
+		st = st.replaceAll("}", "");
+		st = st.replaceAll(",", "");
+		st = st.replaceAll(":", "");
+		st = st.replaceAll(" ", "");
+		st = st.replaceAll("\"\"", "\"");
+		for (String s : st.split("\"")) {
+			res.add(s);
+		}
+		return res;
 	}
 	
 }

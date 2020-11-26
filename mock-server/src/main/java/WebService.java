@@ -43,7 +43,7 @@ public class WebService extends HttpServlet {
 	 */
 	public WebService() throws InterruptedException {
 		//mode = "classic";
-		mode = "dos";
+		mode = "robustness";
 		dotLoaded = false;
 		app = Javalin.createStandalone(config -> {
 			config.requestLogger((ctx, executionTimeMs) -> LogManager.getLogger("MOCK").info(String.format("%s on %s -> %d: %s", ctx.method(), ctx.fullUrl(), ctx.res.getStatus(), ctx.resultString())));
@@ -278,7 +278,7 @@ public class WebService extends HttpServlet {
 				dot.makeXSS();
 			}
 			else if (mode.equals("robustness")) {
-				//dot.makeRobustness();
+				dot.makeRobustness();
 			}
 			else if (mode.equals("dos")) {
 				dot.makeDos();
