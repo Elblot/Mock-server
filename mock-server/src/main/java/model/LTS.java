@@ -148,9 +148,9 @@ public class LTS {
 		int index = p.length() / 2;
 		System.out.println("p: " + p);
 		System.out.println("index: " + index);
-		res.add(p.substring(0, index) + rdmNumber(1) + p.substring(index + 1));
-		res.add(p.substring(0, index) + rdmWord(1) + p.substring(index + 1));
-		res.add(p.substring(0, index) + rdmString(1) + p.substring(index + 1));
+		res.add(p.substring(0, index) + rdmNumber(1) + p.substring(index));
+		res.add(p.substring(0, index) + rdmWord(1) + p.substring(index));
+		res.add(p.substring(0, index) + rdmString(1) + p.substring(index));
 		
 		return res;
 	}
