@@ -125,7 +125,7 @@ public class LTS {
 					String newbody = t.getBody().replace(p, rob);
 					ResponseT x = new ResponseT(t, newbody);
 					addTransition(x);
-					System.out.println(getTransitions());
+					System.out.println("tr: " + getTransitions());
 				}
 			}
 			removeTransition(t);
