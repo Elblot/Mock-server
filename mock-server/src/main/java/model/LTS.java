@@ -444,12 +444,13 @@ public class LTS {
 	}
 
 	/**
-	 *  Associate all the response with their associated requests 
+	 *  Associate all the response with their associated requests and vice versa
 	 **/
 	public void buildResp() {
 		for (ResponseT resp : getResponses()) {
 			for (RequestT req : resp.getLastRequests()) {
 				req.addResponse(resp);
+				resp.addRequest(req);
 			}
 		}
 	}
