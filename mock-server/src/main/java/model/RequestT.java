@@ -189,6 +189,7 @@ public class RequestT extends Transition {
 		source = t.getSource();
 		target = t.getTarget();
 		Verb = t.getVerb();
+		resp = new HashSet<ResponseT>();
 		for (ResponseT r: t.getResponses()) {
 			addResponse(r);
 			r.addRequest(this);

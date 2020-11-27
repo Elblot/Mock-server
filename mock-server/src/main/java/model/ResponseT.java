@@ -198,6 +198,7 @@ public class ResponseT extends Transition {
 		proc = false;
 		status = t.getStatus();
 		content = t.getContent();
+		req = new HashSet<RequestT>();
 		for (RequestT r: t.getRequests()) {
 			addRequest(r);
 			r.addResponse(this);
