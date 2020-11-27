@@ -16,6 +16,7 @@ public class ResponseT extends Transition {
 	private int status;
 	private String content;
 	private boolean proc;
+	private HashSet<RequestT> req;
 	
 	/**
 	 * Parse the transition to create the response
@@ -196,6 +197,10 @@ public class ResponseT extends Transition {
 		proc = false;
 		status = t.getStatus();
 		content = t.getContent();
+		for (RequestT r: t.getRequests()) {
+			addRequest(r);
+			r.addResponse(this);
+		}	
 		if (t.isInput()) {
 			name = "?" + newbody;
 		}
@@ -217,6 +222,7 @@ public class ResponseT extends Transition {
 		step = t.getStep();
 		values = t.getStart();
 		regex = t.getRegex();
+		
 	}
 	
 	/**
@@ -233,6 +239,29 @@ public class ResponseT extends Transition {
 		}
 		else {
 			return body;
+		}
+	}
+	
+	/**
+	 * Return the set of Request leading to this response
+	 */
+	public HashSet<RequestT> getRequests(){
+		return req;
+	}
+	
+	/**
+	 * Add a request to the set req
+	 */
+	public void addRequest(RequestT r) {
+		req.add(r);
+	}
+	
+	/**
+	 * remove a request to the set req
+	 */
+	public void removeRequest(RequestT r) {
+		if (req.contains(r)) {
+			req.remove(r);
 		}
 	}
 	

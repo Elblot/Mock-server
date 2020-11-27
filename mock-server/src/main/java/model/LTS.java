@@ -63,6 +63,16 @@ public class LTS {
 			transitions.remove(t.getSource().toString() + t.getName() + t.getTarget().toString());
 			t.getSource().removeSuccesseur(t);
 			t.getTarget().removePredecesseur(t);	
+			if (t instanceof RequestT) {
+				for (ResponseT r: ((RequestT) t).getResponses()) {
+					r.removeRequest((RequestT) t);
+				}
+			}
+			else if (t instanceof ResponseT) {
+				for (RequestT r: ((ResponseT) t).getRequests()) {
+					r.removeResponse((ResponseT) t);
+				}
+			}
 		}
 	}
 
@@ -114,9 +124,8 @@ public class LTS {
 				for (String rob: getRobustnessString(p)) {
 					String newbody = t.getBody().replace(p, rob);
 					ResponseT x = new ResponseT(t, newbody);
-					//System.out.println(getTransitions());
 					addTransition(x);
-					//System.out.println(getTransitions());
+					System.out.println(getTransitions());
 				}
 			}
 			removeTransition(t);

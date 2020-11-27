@@ -189,7 +189,11 @@ public class RequestT extends Transition {
 		source = t.getSource();
 		target = t.getTarget();
 		Verb = t.getVerb();
-		resp = t.getResponses();
+		for (ResponseT r: t.getResponses()) {
+			addResponse(r);
+			r.addRequest(this);
+		}	
+		//resp = t.getResponses();
 		if (t.isInput()) {
 			name = "?" + newuri;
 		}
@@ -330,6 +334,16 @@ public class RequestT extends Transition {
 	 */
 	public void addResponse(ResponseT r) {
 		resp.add(r);
+		r.addRequest(this);
+	}
+	
+	/**
+	 * remove a response to resp
+	 */
+	public void removeResponse(ResponseT r) {
+		if (resp.contains(r)) {
+			resp.remove(r);
+		}
 	}
 
 	/**
