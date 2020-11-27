@@ -334,7 +334,7 @@ public class RequestT extends Transition {
 	 */
 	public void addResponse(ResponseT r) {
 		resp.add(r);
-		r.addRequest(this);
+		//r.addRequest(this);
 	}
 	
 	/**
