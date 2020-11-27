@@ -146,6 +146,8 @@ public class LTS {
 		res.add(rdmWordP(8));
 		//injection of char
 		int index = p.length() / 2;
+		System.out.println("p: " + p);
+		System.out.println("index: " + index);
 		res.add(p.substring(index) + rdmNumber(1) + p.substring(index + 1, p.length() - 1));
 		res.add(p.substring(index) + rdmWord(1) + p.substring(index + 1, p.length() - 1));
 		res.add(p.substring(index) + rdmString(1) + p.substring(index + 1, p.length() - 1));
