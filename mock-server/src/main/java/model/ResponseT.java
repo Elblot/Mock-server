@@ -335,6 +335,7 @@ public class ResponseT extends Transition {
 		st = st.replaceAll(":", "");
 		st = st.replaceAll("\\s", "");
 		st = st.replaceAll("\"\"", "\"");
+		System.out.println("str: " + st);
 		for (String s : st.split("\"")) {
 			res.add(s);
 		}
