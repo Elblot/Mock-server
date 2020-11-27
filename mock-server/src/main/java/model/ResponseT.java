@@ -12,12 +12,12 @@ import java.util.Set;
  */
 public class ResponseT extends Transition {
 
-	
+
 	private int status;
 	private String content;
 	private boolean proc;
 	private HashSet<RequestT> req;
-	
+
 	/**
 	 * Parse the transition to create the response
 	 * @param src, the source state
@@ -181,9 +181,9 @@ public class ResponseT extends Transition {
 		String[] e = trans.substring(trans.indexOf("("), trans.length() - 1).split(separator);
 		for (String param: e) {
 			if (!param.contains("Host=") && !param.contains("Dest=") &&
-				!param.contains("delay=") && !param.contains("repetition=") && !param.contains("weight=") && 
-				!param.contains("status=") && !param.contains("body=") && !param.contains("start=") &&
-				!param.contains("law=") && !param.contains("regex=") && !param.contains("step=")) {
+					!param.contains("delay=") && !param.contains("repetition=") && !param.contains("weight=") && 
+					!param.contains("status=") && !param.contains("body=") && !param.contains("start=") &&
+					!param.contains("law=") && !param.contains("regex=") && !param.contains("step=")) {
 				headers.put(param.substring(0, param.indexOf("=")), param.substring(param.indexOf("=") + 1));
 			}
 		}
@@ -222,9 +222,9 @@ public class ResponseT extends Transition {
 		step = t.getStep();
 		values = t.getStart();
 		regex = t.getRegex();
-		
+
 	}
-	
+
 	/**
 	 * Return the body
 	 */
@@ -241,21 +241,21 @@ public class ResponseT extends Transition {
 			return body;
 		}
 	}
-	
+
 	/**
 	 * Return the set of Request leading to this response
 	 */
 	public HashSet<RequestT> getRequests(){
 		return req;
 	}
-	
+
 	/**
 	 * Add a request to the set req
 	 */
 	public void addRequest(RequestT r) {
 		req.add(r);
 	}
-	
+
 	/**
 	 * remove a request to the set req
 	 */
@@ -264,7 +264,7 @@ public class ResponseT extends Transition {
 			req.remove(r);
 		}
 	}
-	
+
 	/**
 	 * Change the body
 	 * @param v
@@ -272,7 +272,7 @@ public class ResponseT extends Transition {
 	public void setBody(String v) {
 		body = v;
 	}
-	
+
 	/**
 	 * Return the status
 	 * @return
@@ -280,7 +280,7 @@ public class ResponseT extends Transition {
 	public int getStatus() {
 		return status;
 	}
-	
+
 	/**
 	 * Return true if the response was received by the mock 
 	 * and can then be fired in the model 
@@ -289,7 +289,7 @@ public class ResponseT extends Transition {
 	public boolean isProc() {
 		return proc;
 	}
-	
+
 	/**
 	 * Set the response ad processed
 	 * @param b
@@ -297,7 +297,7 @@ public class ResponseT extends Transition {
 	public void setProc(boolean b) {
 		proc = b;
 	}
-	
+
 	/**
 	 * Change the status
 	 * @param st
@@ -313,7 +313,7 @@ public class ResponseT extends Transition {
 	public String getContent() {
 		return content;
 	}
-	
+
 	/**
 	 * Return the last request associated to this response
 	 * @return
@@ -338,9 +338,11 @@ public class ResponseT extends Transition {
 		System.out.println("str: " + st);
 		for (String s : st.split("\"")) {
 			System.out.println("s: " + s);
-			res.add(s);
+			if (!s.equals("")) {
+				res.add(s);
+			}
 		}
 		return res;
 	}
-	
+
 }
