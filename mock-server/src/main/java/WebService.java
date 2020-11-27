@@ -42,8 +42,8 @@ public class WebService extends HttpServlet {
 	 * @throws InterruptedException 
 	 */
 	public WebService() throws InterruptedException {
-		mode = "classic";
-		//mode = "robustness";
+		//mode = "classic";
+		mode = "robustness";
 		dotLoaded = false;
 		app = Javalin.createStandalone(config -> {
 			config.requestLogger((ctx, executionTimeMs) -> LogManager.getLogger("MOCK").info(String.format("%s on %s -> %d: %s", ctx.method(), ctx.fullUrl(), ctx.res.getStatus(), ctx.resultString())));
