@@ -26,6 +26,7 @@ public class ResponseT extends Transition {
 	 */
 	@SuppressWarnings("unchecked")
 	public ResponseT(State src, String trans, State dst) {
+		req = new HashSet<RequestT>();
 		proc = false;
 		name = trans;
 		//Build the body
